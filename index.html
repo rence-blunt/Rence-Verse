@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>Rence Verse | Poetry Studio by FingBrain</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Theme colors for PWA -->
+    <meta name="theme-color" content="#1E293B">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Rence Verse">
+    
+    <!-- LOCAL FAVICON - points to images folder -->
+    <link rel="icon" type="image/png" href="images/renceverse_logo.png">
+    <link rel="apple-touch-icon" href="images/renceverse_logo.png">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: #F1F5F9;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .app {
+            max-width: 550px;
+            width: 100%;
+            margin: 0 auto;
+            background: #FFFFFF;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 40px rgba(0,0,0,0.05);
+            position: relative;
+        }
+
+        .app-header {
+            padding: 18px 20px 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            border-bottom: 1px solid #EFF3F8;
+            background: white;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .title-section h1 {
+            background: linear-gradient(135deg, #1E293B 0%, #F59E0B 100%) !important;
+            -webkit-background-clip: text !important;
+            background-clip: text !important;
+            color: transparent !important;
+            font-weight: 700 !important;
+            font-size: 1.55rem;
+            letter-spacing: -0.3px;
+        }
+        
+        .save-btn-top {
+            background: #1E293B;
+            border: none;
+            border-radius: 40px;
+            padding: 4px 12px !important;
+            color: white;
+            font-weight: 600;
+            font-size: 0.7rem !important;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            transition: none !important;
+            transform: none !important;
+        }
+        
+        .save-btn-top:hover,
+        .save-btn-top:active,
+        .save-btn-top:focus {
+            background: #1E293B !important;
+            transform: none !important;
+            scale: none !important;
+            opacity: 1 !important;
+        }
+
+        .canvas-container {
+            padding: 24px 20px;
+            background: #FAFCFE;
+            display: flex;
+            justify-content: center;
+            border-bottom: 1px solid #EEF2F6;
+        }
+        .canvas-inner {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+        #poemCanvas {
+            display: block;
+            width: 100%;
+            height: auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.03), 0 1px 2px rgba(0, 0, 0, 0.05);
+            cursor: pointer;
+            transition: 0.1s;
+        }
+        .tap-hint {
+            text-align: center;
+            margin-top: 12px;
+            font-size: 0.7rem;
+            color: #8B5CF6;
+            background: #F8FAFE;
+            padding: 6px 12px;
+            border-radius: 60px;
+            display: inline-block;
+            width: auto;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .bottom-tabs {
+            background: white;
+            border-top: 1px solid #EDF2F7;
+            display: flex;
+            padding: 4px 20px 0 20px;
+            gap: 20px;
+            position: sticky;
+            bottom: 0;
+            background: white;
+            z-index: 10;
+        }
+        .tab-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 12px 0 10px 0;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #94A3B8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: 0.1s;
+            border-bottom: 2px solid transparent;
+        }
+        .tab-btn.active {
+            color: #7C3AED;
+            border-bottom: 2px solid #7C3AED;
+        }
+        .tab-btn span {
+            font-size: 1.1rem;
+        }
+
+        .settings-panel {
+            background: white;
+            padding: 0 20px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.35s cubic-bezier(0.33, 1, 0.68, 1);
+            border-bottom: 1px solid transparent;
+        }
+        .settings-panel.open {
+            max-height: 500px;
+            border-bottom: 1px solid #EDF2F7;
+            padding: 16px 20px 20px 20px;
+            overflow-y: auto;
+        }
+        .panel-content {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .style-group {
+            background: #F8FAFE;
+            border-radius: 24px;
+            padding: 12px 16px;
+        }
+        .style-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: #5B6E8C;
+            margin-bottom: 12px;
+            letter-spacing: 0.3px;
+        }
+        .controls-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            align-items: center;
+        }
+        .ctrl-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: white;
+            padding: 5px 12px;
+            border-radius: 40px;
+            border: 1px solid #E2E8F0;
+        }
+        .ctrl-item span {
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: #334155;
+        }
+        input[type="color"] {
+            width: 34px;
+            height: 34px;
+            border: 1px solid #CBD5E1;
+            border-radius: 30px;
+            cursor: pointer;
+            background: white;
+        }
+        select {
+            background: white;
+            border: 1px solid #E2E8F0;
+            border-radius: 30px;
+            padding: 6px 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: #1E293B;
+        }
+        input[type="range"] {
+            width: 110px;
+            height: 4px;
+            border-radius: 10px;
+        }
+        .gradient-strip {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+        .grad-chip {
+            width: 48px;
+            height: 32px;
+            border-radius: 30px;
+            cursor: pointer;
+            border: 1px solid #E2E8F0;
+            transition: transform 0.05s;
+        }
+        .grad-chip:active {
+            transform: scale(0.94);
+        }
+        .upload-area-sm {
+            background: white;
+            border: 1px dashed #94A3B8;
+            border-radius: 60px;
+            padding: 8px 14px;
+            text-align: center;
+            font-size: 0.7rem;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        .status-text {
+            font-size: 0.65rem;
+            color: #6C86A3;
+            margin-top: 6px;
+        }
+        button.clear-sm {
+            background: transparent;
+            border: 1px solid #E2E8F0;
+            padding: 6px;
+            border-radius: 40px;
+            width: 100%;
+            margin-top: 8px;
+            font-size: 0.7rem;
+            cursor: pointer;
+        }
+        .bg-mode-chip {
+            cursor: pointer;
+            transition: 0.1s;
+        }
+        .bg-mode-chip:active {
+            transform: scale(0.96);
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .modal-card {
+            background: #1E293B;
+            border-radius: 36px;
+            max-width: 480px;
+            width: 100%;
+            padding: 24px;
+            box-shadow: 0 25px 40px rgba(0,0,0,0.3);
+        }
+        .modal-card h3 {
+            color: #F1F5F9;
+            margin-bottom: 16px;
+            font-weight: 600;
+        }
+        .modal-card textarea {
+            width: 100%;
+            background: #0F172A;
+            border: 1px solid #334155;
+            border-radius: 24px;
+            padding: 16px;
+            color: white;
+            font-family: 'Georgia', serif;
+            font-size: 1rem;
+            line-height: 1.5;
+            resize: vertical;
+        }
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        .modal-save {
+            flex: 1;
+            background: #8B5CF6;
+            border: none;
+            border-radius: 60px;
+            padding: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            color: white;
+        }
+        .modal-cancel {
+            flex: 1;
+            background: #334155;
+            border: none;
+            border-radius: 60px;
+            color: white;
+            cursor: pointer;
+        }
+        
+        .app-footer {
+            text-align: center;
+            padding: 14px 20px 18px;
+            font-size: 0.65rem;
+            color: #94A3B8;
+            border-top: 1px solid #F0F2F5;
+            background: white;
+            margin-top: auto;
+        }
+        
+        /* Install prompt banner */
+        .install-banner {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: #1E293B;
+            color: white;
+            padding: 14px 18px;
+            border-radius: 60px;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            font-size: 0.85rem;
+            max-width: 510px;
+            margin: 0 auto;
+        }
+        .install-banner button {
+            background: #F59E0B;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-left: 12px;
+        }
+        .install-banner .close-banner {
+            background: transparent;
+            color: #94A3B8;
+            font-size: 1.2rem;
+            padding: 0 8px;
+        }
+        
+        @media (max-width: 480px) {
+            .app-header { padding: 14px 16px 10px 16px; }
+            .canvas-container { padding: 20px 16px; }
+            .settings-panel.open { padding: 12px 16px 16px 16px; }
+        }
+    </style>
+</head>
+<body>
+<div class="app">
+    <div class="app-header">
+        <div class="title-section">
+            <h1>Rence Verse</h1>
+        </div>
+        <button id="topSaveBtn" class="save-btn-top">💾 Save PNG</button>
+    </div>
+
+    <div class="canvas-container">
+        <div class="canvas-inner">
+            <canvas id="poemCanvas" width="500" height="500" style="width:100%; height:auto;"></canvas>
+        </div>
+    </div>
+    <div style="display: flex; justify-content: center; margin-top: -8px; margin-bottom: 8px;">
+        <div class="tap-hint">✍️ Tap on the poem above to edit text</div>
+    </div>
+
+    <div class="bottom-tabs">
+        <button id="tabTypography" class="tab-btn active"><span>✒️</span> Typography</button>
+        <button id="tabBackground" class="tab-btn"><span>🎨</span> Background</button>
+    </div>
+
+    <div id="typographyPanel" class="settings-panel open">
+        <div class="panel-content">
+            <div class="style-group">
+                <div class="style-label">Text style</div>
+                <div class="controls-row">
+                    <div class="ctrl-item"><span>Color</span><input type="color" id="textColorPicker" value="#1E293B"></div>
+                    <div class="ctrl-item"><span>Size</span><input type="range" id="fontSizeSlider" min="16" max="60" value="26" step="1"><span id="sizeDisplay" style="min-width: 32px;">26</span></div>
+                    <div class="ctrl-item"><span>Font</span>
+                        <select id="fontSelect">
+                            <option value="'Georgia', 'Times New Roman', serif">Georgia</option>
+                            <option value="'Times New Roman', Times, serif">Times New Roman</option>
+                            <option value="'Garamond', 'EB Garamond', serif">Garamond</option>
+                            <option value="'Palatino', 'Book Antiqua', serif">Palatino</option>
+                            <option value="'Baskerville', serif">Baskerville</option>
+                            <option value="'Inter', system-ui, sans-serif">Inter (Sans)</option>
+                            <option value="'Courier New', monospace">Courier New</option>
+                        </select>
+                    </div>
+                    <div class="ctrl-item"><span>Align</span>
+                        <select id="alignSelect">
+                            <option value="center">Center</option>
+                            <option value="left">Left</option>
+                            <option value="right">Right</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="backgroundPanel" class="settings-panel">
+        <div class="panel-content">
+            <div class="style-group">
+                <div class="style-label">Background mode</div>
+                <div class="controls-row" style="gap: 12px; margin-bottom: 12px;">
+                    <button id="solidModeBtn" class="bg-mode-chip" style="background:#EFF3F8; border-radius:40px; padding:6px 16px; border:none; font-weight:500;">🎨 Solid</button>
+                    <button id="gradientModeBtn" class="bg-mode-chip" style="background:#EFF3F8; border-radius:40px; padding:6px 16px; border:none;">🌈 Gradient</button>
+                    <button id="imageModeBtn" class="bg-mode-chip" style="background:#EFF3F8; border-radius:40px; padding:6px 16px; border:none;">🖼️ Image</button>
+                </div>
+                <div id="solidBgArea">
+                    <div class="ctrl-item" style="justify-content: space-between; width: 100%;"><span>Solid color</span><input type="color" id="solidBgColor" value="#FAF7F2"></div>
+                </div>
+                <div id="gradientBgArea" style="display: none;">
+                    <div class="controls-row" style="margin-bottom: 10px;">
+                        <div class="ctrl-item"><span>Color A</span><input type="color" id="gradA" value="#FDFBF7"></div>
+                        <div class="ctrl-item"><span>Color B</span><input type="color" id="gradB" value="#E9ECEF"></div>
+                        <div class="ctrl-item"><span>Dir</span>
+                            <select id="gradDirSelect">
+                                <option value="to right">→ Left to Right</option>
+                                <option value="to bottom">↓ Top to Bottom</option>
+                                <option value="135deg">↘ Diagonal</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="gradient-strip">
+                        <div class="grad-chip" style="background: linear-gradient(135deg, #FDFBF7, #E9ECEF);" data-g1="#FDFBF7" data-g2="#E9ECEF"></div>
+                        <div class="grad-chip" style="background: linear-gradient(135deg, #FFFBEB, #FEE2E2);" data-g1="#FFFBEB" data-g2="#FEE2E2"></div>
+                        <div class="grad-chip" style="background: linear-gradient(135deg, #ECFEFF, #E0F2FE);" data-g1="#ECFEFF" data-g2="#E0F2FE"></div>
+                        <div class="grad-chip" style="background: linear-gradient(135deg, #F3E8FF, #E9D5FF);" data-g1="#F3E8FF" data-g2="#E9D5FF"></div>
+                        <div class="grad-chip" style="background: linear-gradient(135deg, #FDE68A, #FCD34D);" data-g1="#FDE68A" data-g2="#FCD34D"></div>
+                    </div>
+                </div>
+                <div id="imageBgArea" style="display: none;">
+                    <div class="upload-area-sm" id="imageUploadTrigger">📸 Select from device</div>
+                    <input type="file" id="imageFileInput" accept="image/*" style="display: none;">
+                    <div id="imgUploadStatus" class="status-text"></div>
+                    <button id="clearImageBgBtn" class="clear-sm">✖ Remove image</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="app-footer">
+        Rence Verse · Volant Poetry Community · FingBrain
+    </div>
+
+    <div id="poemModal" class="modal-overlay">
+        <div class="modal-card">
+            <h3>✍️ Write / Edit Your Poem</h3>
+            <textarea id="poemEditorText" rows="8" placeholder="Write your poetry here...&#10;Line breaks stay as you type."></textarea>
+            <div class="modal-actions">
+                <button id="modalSaveBtn" class="modal-save">✓ Save & Update</button>
+                <button id="modalCancelBtn" class="modal-cancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Install banner for PWA -->
+    <div id="installBanner" class="install-banner">
+        <span>📱 Install Rence Verse on your phone</span>
+        <div>
+            <button id="installAppBtn">Install</button>
+            <button id="closeBannerBtn" class="close-banner">✕</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function(){
+        const canvas = document.getElementById('poemCanvas');
+        let ctx = canvas.getContext('2d');
+        
+        let currentPoem = ``;
+        
+        const textColorPicker = document.getElementById('textColorPicker');
+        const fontSizeSlider = document.getElementById('fontSizeSlider');
+        const sizeDisplay = document.getElementById('sizeDisplay');
+        const fontSelect = document.getElementById('fontSelect');
+        const alignSelect = document.getElementById('alignSelect');
+        
+        const solidModeBtn = document.getElementById('solidModeBtn');
+        const gradientModeBtn = document.getElementById('gradientModeBtn');
+        const imageModeBtn = document.getElementById('imageModeBtn');
+        const solidBgArea = document.getElementById('solidBgArea');
+        const gradientBgArea = document.getElementById('gradientBgArea');
+        const imageBgArea = document.getElementById('imageBgArea');
+        const solidBgColor = document.getElementById('solidBgColor');
+        const gradA = document.getElementById('gradA');
+        const gradB = document.getElementById('gradB');
+        const gradDirSelect = document.getElementById('gradDirSelect');
+        const imageUploadTrigger = document.getElementById('imageUploadTrigger');
+        const imageFileInput = document.getElementById('imageFileInput');
+        const imgUploadStatus = document.getElementById('imgUploadStatus');
+        const clearImageBgBtn = document.getElementById('clearImageBgBtn');
+        
+        let currentBgMode = 'solid';
+        let loadedImage = null;
+        
+        const tabTypography = document.getElementById('tabTypography');
+        const tabBackground = document.getElementById('tabBackground');
+        const typographyPanel = document.getElementById('typographyPanel');
+        const backgroundPanel = document.getElementById('backgroundPanel');
+        
+        const poemModal = document.getElementById('poemModal');
+        const poemEditorText = document.getElementById('poemEditorText');
+        const modalSaveBtn = document.getElementById('modalSaveBtn');
+        const modalCancelBtn = document.getElementById('modalCancelBtn');
+        
+        let currentOpenTab = 'typography';
+        
+        function getLinesFromText(text, ctx, maxWidth, fontSize, fontFamily) {
+            const paragraphs = text.split(/\r?\n/);
+            const lines = [];
+            for (let para of paragraphs) {
+                if (para.trim() === "") {
+                    lines.push("");
+                    continue;
+                }
+                const words = para.split(/\s+/);
+                let currentLine = "";
+                for (let w of words) {
+                    let testLine = currentLine ? currentLine + " " + w : w;
+                    let metrics = ctx.measureText(testLine);
+                    if (metrics.width > maxWidth && currentLine !== "") {
+                        lines.push(currentLine);
+                        currentLine = w;
+                    } else {
+                        currentLine = testLine;
+                    }
+                }
+                if (currentLine) lines.push(currentLine);
+            }
+            return lines;
+        }
+        
+        function computeHeight(lines, fontSize) {
+            const lineHeight = fontSize * 1.55;
+            const total = lines.length * lineHeight;
+            const padding = 80;
+            return Math.max(400, Math.ceil(total + padding));
+        }
+        
+        function drawBackground(width, height) {
+            if (currentBgMode === 'solid') {
+                ctx.fillStyle = solidBgColor.value;
+                ctx.fillRect(0, 0, width, height);
+            } else if (currentBgMode === 'gradient') {
+                let grad;
+                const dir = gradDirSelect.value;
+                if (dir === 'to right') grad = ctx.createLinearGradient(0, 0, width, 0);
+                else if (dir === 'to bottom') grad = ctx.createLinearGradient(0, 0, 0, height);
+                else grad = ctx.createLinearGradient(0, 0, width, height);
+                grad.addColorStop(0, gradA.value);
+                grad.addColorStop(1, gradB.value);
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, width, height);
+            } else if (currentBgMode === 'image') {
+                if (loadedImage && loadedImage.complete && loadedImage.naturalWidth > 0) {
+                    ctx.drawImage(loadedImage, 0, 0, width, height);
+                } else {
+                    ctx.fillStyle = "#F1F5F9";
+                    ctx.fillRect(0, 0, width, height);
+                    ctx.fillStyle = "#94A3B8";
+                    ctx.font = "12px system-ui";
+                    ctx.fillText("tap to add image", width/2-55, height/2);
+                }
+            }
+        }
+        
+        function drawPoem(width, height, lines, fontSize, fontFamily, color, align) {
+            if (!lines.length) return;
+            ctx.save();
+            ctx.font = `${fontSize}px ${fontFamily}`;
+            ctx.fillStyle = color;
+            ctx.textAlign = align;
+            const lineHeight = fontSize * 1.55;
+            const totalTextH = lines.length * lineHeight;
+            let startY = (height - totalTextH) / 2;
+            if (startY < 40) startY = 45;
+            for (let i=0; i<lines.length; i++) {
+                const line = lines[i];
+                if (line === "") continue;
+                let x;
+                if (align === 'center') x = width/2;
+                else if (align === 'left') x = 45;
+                else x = width - 45;
+                ctx.fillText(line, x, startY + i * lineHeight);
+            }
+            ctx.restore();
+        }
+        
+        function renderCanvas() {
+            if (!ctx) return;
+            if (!currentPoem.trim()) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                return;
+            }
+            const fontSize = parseInt(fontSizeSlider.value, 10);
+            const fontFamily = fontSelect.value;
+            ctx.save();
+            ctx.font = `${fontSize}px ${fontFamily}`;
+            const maxLineWidth = 440;
+            const linesTemp = getLinesFromText(currentPoem, ctx, maxLineWidth, fontSize, fontFamily);
+            ctx.restore();
+            const newHeight = computeHeight(linesTemp, fontSize);
+            const fixedWidth = 500;
+            if (canvas.width !== fixedWidth || canvas.height !== newHeight) {
+                canvas.width = fixedWidth;
+                canvas.height = newHeight;
+                ctx = canvas.getContext('2d');
+            }
+            drawBackground(canvas.width, canvas.height);
+            ctx.font = `${fontSize}px ${fontFamily}`;
+            const finalLines = getLinesFromText(currentPoem, ctx, canvas.width - 90, fontSize, fontFamily);
+            drawPoem(canvas.width, canvas.height, finalLines, fontSize, fontFamily, textColorPicker.value, alignSelect.value);
+        }
+        
+        function loadImage(file) {
+            if (!file || !file.type.startsWith('image/')) {
+                imgUploadStatus.innerText = "⚠️ select an image";
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    loadedImage = img;
+                    imgUploadStatus.innerText = `✓ ${file.name.substring(0, 22)}`;
+                    if (currentBgMode === 'image') renderCanvas();
+                };
+                img.onerror = () => { imgUploadStatus.innerText = "Failed"; loadedImage = null; };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        function clearImageBg() {
+            loadedImage = null;
+            imgUploadStatus.innerText = "Image removed";
+            imageFileInput.value = "";
+            if (currentBgMode === 'image') renderCanvas();
+        }
+        
+        function setBackgroundMode(mode) {
+            currentBgMode = mode;
+            solidBgArea.style.display = mode === 'solid' ? 'block' : 'none';
+            gradientBgArea.style.display = mode === 'gradient' ? 'block' : 'none';
+            imageBgArea.style.display = mode === 'image' ? 'block' : 'none';
+            
+            [solidModeBtn, gradientModeBtn, imageModeBtn].forEach(btn => btn.style.background = "#EFF3F8");
+            if (mode === 'solid') solidModeBtn.style.background = "#CBD5E1";
+            if (mode === 'gradient') gradientModeBtn.style.background = "#CBD5E1";
+            if (mode === 'image') imageModeBtn.style.background = "#CBD5E1";
+            renderCanvas();
+        }
+        
+        function setActiveTab(tabId) {
+            if (tabId === 'typography') {
+                if (currentOpenTab === 'typography' && typographyPanel.classList.contains('open')) {
+                    typographyPanel.classList.remove('open');
+                    currentOpenTab = null;
+                    tabTypography.classList.remove('active');
+                } else {
+                    typographyPanel.classList.add('open');
+                    backgroundPanel.classList.remove('open');
+                    tabTypography.classList.add('active');
+                    tabBackground.classList.remove('active');
+                    currentOpenTab = 'typography';
+                }
+            } else if (tabId === 'background') {
+                if (currentOpenTab === 'background' && backgroundPanel.classList.contains('open')) {
+                    backgroundPanel.classList.remove('open');
+                    currentOpenTab = null;
+                    tabBackground.classList.remove('active');
+                } else {
+                    backgroundPanel.classList.add('open');
+                    typographyPanel.classList.remove('open');
+                    tabBackground.classList.add('active');
+                    tabTypography.classList.remove('active');
+                    currentOpenTab = 'background';
+                }
+            }
+        }
+        
+        function openPoemModal() {
+            poemEditorText.value = currentPoem;
+            poemModal.style.display = 'flex';
+        }
+        
+        function closeModal() {
+            poemModal.style.display = 'none';
+        }
+        
+        function savePoemFromModal() {
+            const newText = poemEditorText.value;
+            if (newText !== undefined) {
+                currentPoem = newText;
+                renderCanvas();
+            }
+            closeModal();
+        }
+        
+        function initGradientPresets() {
+            document.querySelectorAll('.grad-chip').forEach(chip => {
+                chip.addEventListener('click', () => {
+                    const g1 = chip.getAttribute('data-g1');
+                    const g2 = chip.getAttribute('data-g2');
+                    if (g1 && g2) {
+                        gradA.value = g1;
+                        gradB.value = g2;
+                        if (currentBgMode === 'gradient') renderCanvas();
+                        else setBackgroundMode('gradient');
+                    }
+                });
+            });
+        }
+        
+        function bindEvents() {
+            textColorPicker.addEventListener('input', () => renderCanvas());
+            fontSizeSlider.addEventListener('input', () => {
+                sizeDisplay.innerText = fontSizeSlider.value;
+                renderCanvas();
+            });
+            fontSelect.addEventListener('change', () => renderCanvas());
+            alignSelect.addEventListener('change', () => renderCanvas());
+            solidBgColor.addEventListener('input', () => { if (currentBgMode === 'solid') renderCanvas(); });
+            gradA.addEventListener('input', () => { if (currentBgMode === 'gradient') renderCanvas(); });
+            gradB.addEventListener('input', () => { if (currentBgMode === 'gradient') renderCanvas(); });
+            gradDirSelect.addEventListener('change', () => { if (currentBgMode === 'gradient') renderCanvas(); });
+            
+            solidModeBtn.addEventListener('click', () => setBackgroundMode('solid'));
+            gradientModeBtn.addEventListener('click', () => setBackgroundMode('gradient'));
+            imageModeBtn.addEventListener('click', () => setBackgroundMode('image'));
+            
+            imageUploadTrigger.addEventListener('click', () => imageFileInput.click());
+            imageFileInput.addEventListener('change', (e) => { if (e.target.files[0]) loadImage(e.target.files[0]); });
+            clearImageBgBtn.addEventListener('click', clearImageBg);
+            
+            canvas.addEventListener('click', openPoemModal);
+            modalSaveBtn.addEventListener('click', savePoemFromModal);
+            modalCancelBtn.addEventListener('click', closeModal);
+            poemModal.addEventListener('click', (e) => { if (e.target === poemModal) closeModal(); });
+            
+            document.getElementById('topSaveBtn').addEventListener('click', () => {
+                try {
+                    const dataURL = canvas.toDataURL('image/png');
+                    const link = document.createElement('a');
+                    link.download = 'rence-verse.png';
+                    link.href = dataURL;
+                    link.click();
+                } catch(e) { 
+                    alert("Save failed: " + e.message); 
+                }
+            });
+            
+            tabTypography.addEventListener('click', () => setActiveTab('typography'));
+            tabBackground.addEventListener('click', () => setActiveTab('background'));
+        }
+        
+        // PWA Installation
+        let deferredPrompt;
+        const installBanner = document.getElementById('installBanner');
+        const installBtn = document.getElementById('installAppBtn');
+        const closeBannerBtn = document.getElementById('closeBannerBtn');
+        
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installBanner.style.display = 'flex';
+        });
+        
+        installBtn.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    installBanner.style.display = 'none';
+                }
+                deferredPrompt = null;
+            }
+        });
+        
+        closeBannerBtn.addEventListener('click', () => {
+            installBanner.style.display = 'none';
+        });
+        
+        function init() {
+            bindEvents();
+            initGradientPresets();
+            setBackgroundMode('solid');
+            solidBgColor.value = "#FAF7F2";
+            typographyPanel.classList.add('open');
+            backgroundPanel.classList.remove('open');
+            currentOpenTab = 'typography';
+            renderCanvas();
+        }
+        
+        init();
+    })();
+</script>
+</body>
+</html>
