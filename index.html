@@ -867,7 +867,7 @@
         if (saved) { try { const data = JSON.parse(saved); if (data.layers && data.layers.length) { layers = data.layers; nextId = Math.max(...layers.map(l=>l.id),0)+1; activeLayerId = data.activeLayerId || layers[0]?.id; if(data.currentBgMode) setBackgroundMode(data.currentBgMode); solidBgColor.value = data.solidBg || "#FAF7F2"; gradA.value = data.gradA || "#FDFBF7"; gradB.value = data.gradB || "#E9ECEF"; gradDirSelect.value = data.gradDir || "to right"; } else throw new Error(); } catch(e){ initDefaultLayers(); } } else { initDefaultLayers(); }
         refreshLayersList(); if(activeLayerId) updateActiveLayerUI(); renderCanvas();
     }
-    function initDefaultLayers() { layers = [{ id:1, name:"Main Poem", text:"The golden hour melts away,\nShadows dance in soft decay.\nWhispers of the coming night,\nHold the stars in gentle light.", color:"#1E293B", fontSize:26, fontFamily:"'Georgia', serif", align:"center", indent:0, xOffset:0, yOffset:0 }]; nextId=2; activeLayerId=1; }
+    function initDefaultLayers() { layers = [{ id:1, name:"Main Poem", text:"When love finds you well,\nno man is a burden.\nYou don't feel empty,\nyou don't feel lonely...", color:"#1E293B", fontSize:26, fontFamily:"'Georgia', serif", align:"center", indent:0, xOffset:0, yOffset:0 }]; nextId=2; activeLayerId=1; }
     function loadImageFile(file) { const reader = new FileReader(); reader.onload = (e) => { const img = new Image(); img.onload = () => { loadedImage = img; document.getElementById('imgUploadStatus').innerHTML = '✓ Image loaded'; if(currentBgMode === 'image') renderCanvas(); saveToLocalStorage(); }; img.src = e.target.result; }; reader.readAsDataURL(file); }
     
     // Tab toggle logic - each tab toggles independently (click to expand, click again to collapse)
