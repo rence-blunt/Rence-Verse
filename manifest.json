@@ -1,23 +1,19 @@
 {
-  "name": "Rence Verse",
+  "name": "Rence Verse Poetry Studio",
   "short_name": "Rence Verse",
-  "description": "Poetry on image studio by FingBrain",
-  "start_url": ".",
+  "description": "Create beautiful poetry with layers, drag & drop, and custom backgrounds",
+  "start_url": "/Rence-Verse/",
   "display": "standalone",
   "theme_color": "#1E293B",
-  "background_color": "#F1F5F9",
+  "background_color": "#FFFFFF",
   "orientation": "portrait",
+  "scope": "/Rence-Verse/",
   "icons": [
     {
       "src": "images/renceverse_logo.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
-    },
-    {
-      "src": "images/renceverse_logo.png",
-      "sizes": "192x192",
-      "type": "image/png"
     }
   ]
 }

@@ -3,23 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>Rence Verse | Poetry Studio by FingBrain</title>
+    <title>Rence Verse | Poetry Studio</title>
     
-    <!-- PWA Manifest -->
-    <link rel="manifest" href="manifest.json">
-    
-    <!-- Theme colors for PWA -->
-    <meta name="theme-color" content="#1E293B">
+    <!-- Fullscreen app settings -->
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Rence Verse">
+    <meta name="theme-color" content="#1E293B">
     
-    <!-- LOCAL FAVICON - points to images folder -->
-    <link rel="icon" type="image/png" href="images/renceverse_logo.png">
+        <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/Rence-Verse/sw.js')
+                    .then(reg => console.log('✅ SW registered:', reg))
+                    .catch(err => console.log('❌ SW error:', err));
+            });
+        }
+    </script>
+    
+    <!-- iOS/macOS specific -->
+    <meta name="apple-mobile-web-app-title" content="Rence Verse">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="images/renceverse_logo.png">
     
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Windows -->
+    <meta name="msapplication-TileImage" content="images/renceverse_logo.png">
+    <meta name="msapplication-TileColor" content="#1E293B">
+
+    <!-- Favicon & Logo pointing to images folder -->
+    <link rel="icon" type="image/png" href="images/renceverse_logo.png">
+    <link rel="apple-touch-icon" href="images/renceverse_logo.png">
     
     <style>
         * {
@@ -31,10 +48,8 @@
 
         body {
             background: #F1F5F9;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
         }
 
         .app {
@@ -46,7 +61,6 @@
             display: flex;
             flex-direction: column;
             box-shadow: 0 0 40px rgba(0,0,0,0.05);
-            position: relative;
         }
 
         .app-header {
@@ -56,44 +70,30 @@
             align-items: baseline;
             border-bottom: 1px solid #EFF3F8;
             background: white;
-            position: sticky;
-            top: 0;
-            z-index: 10;
         }
         
         .title-section h1 {
-            background: linear-gradient(135deg, #1E293B 0%, #F59E0B 100%) !important;
-            -webkit-background-clip: text !important;
-            background-clip: text !important;
-            color: transparent !important;
-            font-weight: 700 !important;
             font-size: 1.55rem;
-            letter-spacing: -0.3px;
+            background: linear-gradient(135deg, #1E293B, #F59E0B);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
         }
         
         .save-btn-top {
             background: #1E293B;
             border: none;
             border-radius: 40px;
-            padding: 4px 12px !important;
+            padding: 8px 18px;
             color: white;
             font-weight: 600;
-            font-size: 0.7rem !important;
-            display: flex;
-            align-items: center;
-            gap: 4px;
+            font-size: 0.8rem;
             cursor: pointer;
-            transition: none !important;
-            transform: none !important;
+            transition: all 0.2s ease;
         }
         
-        .save-btn-top:hover,
-        .save-btn-top:active,
-        .save-btn-top:focus {
-            background: #1E293B !important;
-            transform: none !important;
-            scale: none !important;
-            opacity: 1 !important;
+        .save-btn-top:active {
+            transform: scale(0.96);
         }
 
         .canvas-container {
@@ -101,53 +101,64 @@
             background: #FAFCFE;
             display: flex;
             justify-content: center;
-            border-bottom: 1px solid #EEF2F6;
+            position: relative;
+            overflow-x: auto;
         }
-        .canvas-inner {
-            width: 100%;
-            display: flex;
-            justify-content: center;
-        }
+        
         #poemCanvas {
             display: block;
             width: 100%;
             height: auto;
             background: white;
             border-radius: 20px;
-            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.03), 0 1px 2px rgba(0, 0, 0, 0.05);
-            cursor: pointer;
-            transition: 0.1s;
+            box-shadow: 0 6px 14px rgba(0,0,0,0.05);
+            cursor: grab;
         }
-        .tap-hint {
+        
+        #poemCanvas:active {
+            cursor: grabbing;
+        }
+        
+        .instruction-badge {
             text-align: center;
-            margin-top: 12px;
+            margin-top: 8px;
             font-size: 0.7rem;
-            color: #8B5CF6;
-            background: #F8FAFE;
+            background: #FEF3C7;
+            color: #D97706;
             padding: 6px 12px;
             border-radius: 60px;
             display: inline-block;
-            width: auto;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .tap-hint {
+            text-align: center;
+            margin-top: 6px;
+            font-size: 0.65rem;
+            color: #64748B;
+            background: #F8FAFE;
+            padding: 5px 12px;
+            border-radius: 60px;
+            display: inline-block;
             margin-left: auto;
             margin-right: auto;
         }
 
+        /* Three Tabs */
         .bottom-tabs {
             background: white;
             border-top: 1px solid #EDF2F7;
             display: flex;
-            padding: 4px 20px 0 20px;
+            padding: 4px 20px 0;
             gap: 20px;
-            position: sticky;
-            bottom: 0;
-            background: white;
-            z-index: 10;
         }
+        
         .tab-btn {
             flex: 1;
             background: transparent;
             border: none;
-            padding: 12px 0 10px 0;
+            padding: 12px 0 10px;
             font-size: 0.85rem;
             font-weight: 600;
             color: #94A3B8;
@@ -156,140 +167,209 @@
             justify-content: center;
             gap: 8px;
             cursor: pointer;
-            transition: 0.1s;
             border-bottom: 2px solid transparent;
+            transition: all 0.2s;
         }
+        
         .tab-btn.active {
-            color: #7C3AED;
-            border-bottom: 2px solid #7C3AED;
-        }
-        .tab-btn span {
-            font-size: 1.1rem;
+            color: #F59E0B;
+            border-bottom: 2px solid #F59E0B;
         }
 
+        /* Expandable panels - each independent */
         .settings-panel {
             background: white;
             padding: 0 20px;
             max-height: 0;
             overflow: hidden;
-            transition: max-height 0.35s cubic-bezier(0.33, 1, 0.68, 1);
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             border-bottom: 1px solid transparent;
         }
+        
         .settings-panel.open {
-            max-height: 500px;
+            max-height: 650px;
+            padding: 16px 20px 24px;
             border-bottom: 1px solid #EDF2F7;
-            padding: 16px 20px 20px 20px;
             overflow-y: auto;
-        }
-        .panel-content {
-            display: flex;
-            flex-direction: column;
-            gap: 18px;
         }
 
         .style-group {
             background: #F8FAFE;
-            border-radius: 24px;
-            padding: 12px 16px;
+            border-radius: 28px;
+            padding: 16px 18px;
+            margin-bottom: 16px;
         }
+        
         .style-label {
             font-size: 0.7rem;
-            font-weight: 600;
+            font-weight: 700;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
             color: #5B6E8C;
-            margin-bottom: 12px;
-            letter-spacing: 0.3px;
+            margin-bottom: 14px;
         }
+        
         .controls-row {
             display: flex;
             flex-wrap: wrap;
-            gap: 16px;
+            gap: 14px;
             align-items: center;
         }
+        
         .ctrl-item {
             display: flex;
             align-items: center;
             gap: 10px;
             background: white;
-            padding: 5px 12px;
-            border-radius: 40px;
+            padding: 6px 14px;
+            border-radius: 48px;
             border: 1px solid #E2E8F0;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
         }
-        .ctrl-item span {
-            font-size: 0.7rem;
-            font-weight: 500;
-            color: #334155;
-        }
+        
         input[type="color"] {
-            width: 34px;
-            height: 34px;
-            border: 1px solid #CBD5E1;
+            width: 38px;
+            height: 38px;
             border-radius: 30px;
             cursor: pointer;
-            background: white;
+            border: 2px solid white;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
         }
-        select {
+        
+        select, input[type="range"] {
             background: white;
             border: 1px solid #E2E8F0;
-            border-radius: 30px;
-            padding: 6px 12px;
-            font-size: 0.75rem;
-            font-weight: 500;
-            color: #1E293B;
+            border-radius: 40px;
+            padding: 6px 14px;
+            font-size: 0.8rem;
+            cursor: pointer;
         }
-        input[type="range"] {
-            width: 110px;
-            height: 4px;
-            border-radius: 10px;
-        }
-        .gradient-strip {
+        
+        .layer-list {
             display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .layer-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: white;
+            padding: 10px 14px;
+            border-radius: 60px;
+            border: 1px solid #E2E8F0;
             gap: 10px;
             flex-wrap: wrap;
-            margin-top: 8px;
         }
-        .grad-chip {
-            width: 48px;
-            height: 32px;
+        
+        .layer-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 2;
+            min-width: 140px;
+        }
+        
+        .layer-name {
+            font-weight: 600;
+            font-size: 0.85rem;
+            background: #F1F5F9;
+            padding: 4px 12px;
             border-radius: 30px;
             cursor: pointer;
-            border: 1px solid #E2E8F0;
-            transition: transform 0.05s;
+            transition: background 0.2s;
         }
+        
+        .layer-name:active {
+            background: #E2E8F0;
+        }
+        
+        .layer-controls {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .layer-controls button {
+            background: #EFF3F8;
+            border: none;
+            border-radius: 30px;
+            padding: 6px 14px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        .delete-layer-btn {
+            background: #FEE2E2 !important;
+            color: #DC2626 !important;
+        }
+        
+        .add-layer-btn {
+            background: #1E293B;
+            color: white;
+            border: none;
+            border-radius: 60px;
+            padding: 10px 16px;
+            font-weight: 600;
+            margin-top: 12px;
+            width: 100%;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        
+        .add-layer-btn:active {
+            opacity: 0.8;
+        }
+        
+        .gradient-strip {
+            display: flex;
+            gap: 12px;
+            margin-top: 14px;
+            flex-wrap: wrap;
+        }
+        
+        .grad-chip {
+            width: 52px;
+            height: 36px;
+            border-radius: 36px;
+            cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+            transition: transform 0.1s;
+        }
+        
         .grad-chip:active {
             transform: scale(0.94);
         }
+        
         .upload-area-sm {
             background: white;
-            border: 1px dashed #94A3B8;
+            border: 1.5px dashed #94A3B8;
             border-radius: 60px;
-            padding: 8px 14px;
+            padding: 10px 16px;
             text-align: center;
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             font-weight: 500;
             cursor: pointer;
         }
-        .status-text {
-            font-size: 0.65rem;
-            color: #6C86A3;
-            margin-top: 6px;
-        }
-        button.clear-sm {
-            background: transparent;
-            border: 1px solid #E2E8F0;
-            padding: 6px;
-            border-radius: 40px;
-            width: 100%;
-            margin-top: 8px;
-            font-size: 0.7rem;
-            cursor: pointer;
-        }
+        
         .bg-mode-chip {
             cursor: pointer;
-            transition: 0.1s;
+            background: #EFF3F8;
+            border-radius: 40px;
+            padding: 8px 20px;
+            border: none;
+            font-weight: 600;
+            font-size: 0.8rem;
+            transition: all 0.2s;
         }
-        .bg-mode-chip:active {
-            transform: scale(0.96);
+        
+        .bg-mode-chip.active {
+            background: #1E293B;
+            color: white;
         }
 
         .modal-overlay {
@@ -299,112 +379,123 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.6);
+            background: rgba(0,0,0,0.7);
             backdrop-filter: blur(8px);
             z-index: 1000;
             align-items: center;
             justify-content: center;
             padding: 20px;
         }
+        
         .modal-card {
             background: #1E293B;
-            border-radius: 36px;
+            border-radius: 40px;
             max-width: 480px;
             width: 100%;
-            padding: 24px;
+            padding: 28px;
             box-shadow: 0 25px 40px rgba(0,0,0,0.3);
         }
+        
         .modal-card h3 {
             color: #F1F5F9;
-            margin-bottom: 16px;
-            font-weight: 600;
+            margin-bottom: 20px;
+            font-size: 1.4rem;
         }
+        
         .modal-card textarea {
             width: 100%;
             background: #0F172A;
             border: 1px solid #334155;
-            border-radius: 24px;
-            padding: 16px;
+            border-radius: 28px;
+            padding: 18px;
             color: white;
             font-family: 'Georgia', serif;
             font-size: 1rem;
             line-height: 1.5;
             resize: vertical;
         }
+        
         .modal-actions {
             display: flex;
-            gap: 12px;
-            margin-top: 20px;
+            gap: 14px;
+            margin-top: 24px;
         }
+        
         .modal-save {
             flex: 1;
-            background: #8B5CF6;
+            background: #F59E0B;
             border: none;
             border-radius: 60px;
-            padding: 12px;
+            padding: 14px;
             font-weight: bold;
             cursor: pointer;
-            color: white;
+            color: #1E293B;
+            font-size: 1rem;
         }
+        
         .modal-cancel {
             flex: 1;
             background: #334155;
             border: none;
             border-radius: 60px;
+            padding: 14px;
             color: white;
             cursor: pointer;
+            font-size: 1rem;
         }
         
-        .app-footer {
-            text-align: center;
-            padding: 14px 20px 18px;
-            font-size: 0.65rem;
-            color: #94A3B8;
-            border-top: 1px solid #F0F2F5;
-            background: white;
-            margin-top: auto;
-        }
-        
-        /* Install prompt banner */
-        .install-banner {
-            display: none;
+        .toast {
             position: fixed;
-            bottom: 20px;
-            left: 20px;
-            right: 20px;
+            bottom: 90px;
+            left: 50%;
+            transform: translateX(-50%);
             background: #1E293B;
             color: white;
-            padding: 14px 18px;
+            padding: 12px 24px;
             border-radius: 60px;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 100;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            z-index: 2000;
             font-size: 0.85rem;
-            max-width: 510px;
-            margin: 0 auto;
-        }
-        .install-banner button {
-            background: #F59E0B;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 40px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-left: 12px;
-        }
-        .install-banner .close-banner {
-            background: transparent;
-            color: #94A3B8;
-            font-size: 1.2rem;
-            padding: 0 8px;
+            font-weight: 500;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+            pointer-events: none;
+            white-space: nowrap;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
         }
         
-        @media (max-width: 480px) {
-            .app-header { padding: 14px 16px 10px 16px; }
-            .canvas-container { padding: 20px 16px; }
-            .settings-panel.open { padding: 12px 16px 16px 16px; }
+        @media (max-width: 500px) {
+            .controls-row { gap: 10px; }
+            .ctrl-item { padding: 4px 12px; }
+            input[type="color"] { width: 34px; height: 34px; }
+            .layer-item { flex-direction: column; align-items: stretch; }
         }
+
+        .save-btn-top {
+    background: #1E293B;
+    border: none;
+    border-radius: 32px;
+    padding: 6px 14px;
+    color: white;
+    font-weight: 500;
+    font-size: 0.7rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 70px;
+    letter-spacing: 0.3px;
+}
+
+.save-btn-top:active {
+    transform: scale(0.95);
+}
+
+/* Even smaller on mobile */
+@media (max-width: 480px) {
+    .save-btn-top {
+        padding: 5px 12px;
+        font-size: 0.65rem;
+        min-width: 62px;
+    }
+}
     </style>
 </head>
 <body>
@@ -417,448 +508,434 @@
     </div>
 
     <div class="canvas-container">
-        <div class="canvas-inner">
-            <canvas id="poemCanvas" width="500" height="500" style="width:100%; height:auto;"></canvas>
-        </div>
+        <canvas id="poemCanvas" width="500" height="500" style="width:100%; height:auto;"></canvas>
     </div>
-    <div style="display: flex; justify-content: center; margin-top: -8px; margin-bottom: 8px;">
-        <div class="tap-hint">✍️ Tap on the poem above to edit text</div>
+    <div style="display: flex; justify-content: center; flex-direction: column; align-items: center; gap: 4px;">
+    <div class="tap-hint">✍️ Tap text to edit content | Drag to move freely</div>
     </div>
 
+    <!-- Three Tabs: Typography | Layers | Background -->
     <div class="bottom-tabs">
-        <button id="tabTypography" class="tab-btn active"><span>✒️</span> Typography</button>
-        <button id="tabBackground" class="tab-btn"><span>🎨</span> Background</button>
+        <button id="tabTypography" class="tab-btn active"> Typography</button>
+        <button id="tabLayers" class="tab-btn"> Layers</button>
+        <button id="tabBackground" class="tab-btn"> Background</button>
     </div>
 
+    <!-- Typography Panel -->
     <div id="typographyPanel" class="settings-panel open">
-        <div class="panel-content">
-            <div class="style-group">
-                <div class="style-label">Text style</div>
-                <div class="controls-row">
-                    <div class="ctrl-item"><span>Color</span><input type="color" id="textColorPicker" value="#1E293B"></div>
-                    <div class="ctrl-item"><span>Size</span><input type="range" id="fontSizeSlider" min="16" max="60" value="26" step="1"><span id="sizeDisplay" style="min-width: 32px;">26</span></div>
-                    <div class="ctrl-item"><span>Font</span>
-                        <select id="fontSelect">
-                            <option value="'Georgia', 'Times New Roman', serif">Georgia</option>
-                            <option value="'Times New Roman', Times, serif">Times New Roman</option>
-                            <option value="'Garamond', 'EB Garamond', serif">Garamond</option>
-                            <option value="'Palatino', 'Book Antiqua', serif">Palatino</option>
-                            <option value="'Baskerville', serif">Baskerville</option>
-                            <option value="'Inter', system-ui, sans-serif">Inter (Sans)</option>
-                            <option value="'Courier New', monospace">Courier New</option>
-                        </select>
-                    </div>
-                    <div class="ctrl-item"><span>Align</span>
-                        <select id="alignSelect">
-                            <option value="center">Center</option>
-                            <option value="left">Left</option>
-                            <option value="right">Right</option>
-                        </select>
-                    </div>
+        <div class="style-group">
+            <div class="style-label"> Active Layer: <span id="activeLayerName">Main Poem</span></div>
+            <div class="controls-row">
+                <div class="ctrl-item"><span>Color</span><input type="color" id="textColorPicker" value="#1E293B"></div>
+                <div class="ctrl-item"><span>Size</span><input type="range" id="fontSizeSlider" min="12" max="72" value="26"><span id="sizeDisplay">26</span></div>
+                <div class="ctrl-item"><span>Font</span>
+                    <select id="fontSelect">
+                        <option value="'Georgia', serif">Georgia</option>
+                        <option value="'Times New Roman', serif">Times New Roman</option>
+                        <option value="'Garamond', serif">Garamond</option>
+                        <option value="'Palatino', serif">Palatino</option>
+                        <option value="'Courier New', monospace">Courier New</option>
+                    </select>
                 </div>
+                <div class="ctrl-item"><span>Align</span>
+                    <select id="alignSelect">
+                        <option value="center">Center</option>
+                        <option value="left">Left</option>
+                        <option value="right">Right</option>
+                    </select>
+                </div>
+                <div class="ctrl-item"><span>Indent</span><input type="range" id="indentSlider" min="0" max="80" value="0"><span id="indentDisplay">0px</span></div>
+            </div>
+            <div class="controls-row" style="margin-top:12px;">
+                <div class="ctrl-item"><span> X Position</span><input type="range" id="xOffsetSlider" min="-500" max="500" value="0"><span id="xOffsetDisplay">0px</span></div>
+                <div class="ctrl-item"><span>Y Position</span><input type="range" id="yOffsetSlider" min="-500" max="500" value="0"><span id="yOffsetDisplay">0px</span></div>
+                <button id="resetPositionBtn" style="background:#E2E8F0; border:none; border-radius:40px; padding:6px 16px; cursor:pointer;">⟳ Reset</button>
             </div>
         </div>
     </div>
 
+    <!-- Layers Panel -->
+    <div id="layersPanel" class="settings-panel">
+        <div class="style-group">
+            <div class="style-label">Text Layers</div>
+            <div id="layersListContainer" class="layer-list"></div>
+            <button id="addNewLayerBtn" class="add-layer-btn">+ Add New Text Layer</button>
+            <div style="margin-top: 10px; font-size: 0.65rem; color: #64748B; text-align: center;">Click a layer name to activate, then drag it anywhere</div>
+        </div>
+    </div>
+
+    <!-- Background Panel -->
     <div id="backgroundPanel" class="settings-panel">
-        <div class="panel-content">
-            <div class="style-group">
-                <div class="style-label">Background mode</div>
-                <div class="controls-row" style="gap: 12px; margin-bottom: 12px;">
-                    <button id="solidModeBtn" class="bg-mode-chip" style="background:#EFF3F8; border-radius:40px; padding:6px 16px; border:none; font-weight:500;">🎨 Solid</button>
-                    <button id="gradientModeBtn" class="bg-mode-chip" style="background:#EFF3F8; border-radius:40px; padding:6px 16px; border:none;">🌈 Gradient</button>
-                    <button id="imageModeBtn" class="bg-mode-chip" style="background:#EFF3F8; border-radius:40px; padding:6px 16px; border:none;">🖼️ Image</button>
+        <div class="style-group">
+            <div class="style-label">🎨 Background Mode</div>
+            <div class="controls-row" style="gap: 12px; margin-bottom: 16px;">
+                <button id="solidModeBtn" class="bg-mode-chip active">🎨 Solid</button>
+                <button id="gradientModeBtn" class="bg-mode-chip">🌈 Gradient</button>
+                <button id="imageModeBtn" class="bg-mode-chip">🖼️ Image</button>
+            </div>
+            <div id="solidBgArea"><div class="ctrl-item"><span>Color</span><input type="color" id="solidBgColor" value="#FAF7F2"></div></div>
+            <div id="gradientBgArea" style="display: none;">
+                <div class="controls-row"><div class="ctrl-item"><span>A</span><input type="color" id="gradA" value="#FDFBF7"></div><div class="ctrl-item"><span>B</span><input type="color" id="gradB" value="#E9ECEF"></div><select id="gradDirSelect"><option value="to right">→ Left to Right</option><option value="to bottom">↓ Top to Bottom</option><option value="135deg">↘ Diagonal</option></select></div>
+                <div class="gradient-strip">
+                    <div class="grad-chip" style="background: linear-gradient(135deg, #FDFBF7, #E9ECEF);"></div>
+                    <div class="grad-chip" style="background: linear-gradient(135deg, #FFFBEB, #FEE2E2);"></div>
+                    <div class="grad-chip" style="background: linear-gradient(135deg, #ECFEFF, #E0F2FE);"></div>
                 </div>
-                <div id="solidBgArea">
-                    <div class="ctrl-item" style="justify-content: space-between; width: 100%;"><span>Solid color</span><input type="color" id="solidBgColor" value="#FAF7F2"></div>
-                </div>
-                <div id="gradientBgArea" style="display: none;">
-                    <div class="controls-row" style="margin-bottom: 10px;">
-                        <div class="ctrl-item"><span>Color A</span><input type="color" id="gradA" value="#FDFBF7"></div>
-                        <div class="ctrl-item"><span>Color B</span><input type="color" id="gradB" value="#E9ECEF"></div>
-                        <div class="ctrl-item"><span>Dir</span>
-                            <select id="gradDirSelect">
-                                <option value="to right">→ Left to Right</option>
-                                <option value="to bottom">↓ Top to Bottom</option>
-                                <option value="135deg">↘ Diagonal</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="gradient-strip">
-                        <div class="grad-chip" style="background: linear-gradient(135deg, #FDFBF7, #E9ECEF);" data-g1="#FDFBF7" data-g2="#E9ECEF"></div>
-                        <div class="grad-chip" style="background: linear-gradient(135deg, #FFFBEB, #FEE2E2);" data-g1="#FFFBEB" data-g2="#FEE2E2"></div>
-                        <div class="grad-chip" style="background: linear-gradient(135deg, #ECFEFF, #E0F2FE);" data-g1="#ECFEFF" data-g2="#E0F2FE"></div>
-                        <div class="grad-chip" style="background: linear-gradient(135deg, #F3E8FF, #E9D5FF);" data-g1="#F3E8FF" data-g2="#E9D5FF"></div>
-                        <div class="grad-chip" style="background: linear-gradient(135deg, #FDE68A, #FCD34D);" data-g1="#FDE68A" data-g2="#FCD34D"></div>
-                    </div>
-                </div>
-                <div id="imageBgArea" style="display: none;">
-                    <div class="upload-area-sm" id="imageUploadTrigger">📸 Select from device</div>
-                    <input type="file" id="imageFileInput" accept="image/*" style="display: none;">
-                    <div id="imgUploadStatus" class="status-text"></div>
-                    <button id="clearImageBgBtn" class="clear-sm">✖ Remove image</button>
-                </div>
+            </div>
+            <div id="imageBgArea" style="display: none;">
+                <div class="upload-area-sm" id="imageUploadTrigger">📸 Select Image</div>
+                <input type="file" id="imageFileInput" accept="image/*" style="display: none;">
+                <div id="imgUploadStatus" style="font-size:0.7rem; margin-top:6px;"></div>
+                <button id="clearImageBgBtn" style="margin-top:12px; padding:8px; width:100%; border-radius:60px; background:white; border:1px solid #E2E8F0; cursor:pointer;">✖ Remove Image</button>
             </div>
         </div>
     </div>
 
-    <div class="app-footer">
-        Rence Verse · Volant Poetry Community · FingBrain
-    </div>
-
+    <!-- Edit Modal -->
     <div id="poemModal" class="modal-overlay">
-        <div class="modal-card">
-            <h3>✍️ Write / Edit Your Poem</h3>
-            <textarea id="poemEditorText" rows="8" placeholder="Write your poetry here...&#10;Line breaks stay as you type."></textarea>
-            <div class="modal-actions">
-                <button id="modalSaveBtn" class="modal-save">✓ Save & Update</button>
-                <button id="modalCancelBtn" class="modal-cancel">Cancel</button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Install banner for PWA -->
-    <div id="installBanner" class="install-banner">
-        <span>📱 Install Rence Verse on your phone</span>
-        <div>
-            <button id="installAppBtn">Install</button>
-            <button id="closeBannerBtn" class="close-banner">✕</button>
-        </div>
+        <div class="modal-card"><h3>✍️ Edit: <span id="modalLayerName"></span></h3><textarea id="poemEditorText" rows="8"></textarea><div class="modal-actions"><button id="modalSaveBtn" class="modal-save">✓ Save</button><button id="modalCancelBtn" class="modal-cancel">Cancel</button></div></div>
     </div>
 </div>
+<div id="toast" class="toast"></div>
 
 <script>
-    (function(){
-        const canvas = document.getElementById('poemCanvas');
-        let ctx = canvas.getContext('2d');
-        
-        let currentPoem = ``;
-        
-        const textColorPicker = document.getElementById('textColorPicker');
-        const fontSizeSlider = document.getElementById('fontSizeSlider');
-        const sizeDisplay = document.getElementById('sizeDisplay');
-        const fontSelect = document.getElementById('fontSelect');
-        const alignSelect = document.getElementById('alignSelect');
-        
-        const solidModeBtn = document.getElementById('solidModeBtn');
-        const gradientModeBtn = document.getElementById('gradientModeBtn');
-        const imageModeBtn = document.getElementById('imageModeBtn');
-        const solidBgArea = document.getElementById('solidBgArea');
-        const gradientBgArea = document.getElementById('gradientBgArea');
-        const imageBgArea = document.getElementById('imageBgArea');
-        const solidBgColor = document.getElementById('solidBgColor');
-        const gradA = document.getElementById('gradA');
-        const gradB = document.getElementById('gradB');
-        const gradDirSelect = document.getElementById('gradDirSelect');
-        const imageUploadTrigger = document.getElementById('imageUploadTrigger');
-        const imageFileInput = document.getElementById('imageFileInput');
-        const imgUploadStatus = document.getElementById('imgUploadStatus');
-        const clearImageBgBtn = document.getElementById('clearImageBgBtn');
-        
-        let currentBgMode = 'solid';
-        let loadedImage = null;
-        
-        const tabTypography = document.getElementById('tabTypography');
-        const tabBackground = document.getElementById('tabBackground');
-        const typographyPanel = document.getElementById('typographyPanel');
-        const backgroundPanel = document.getElementById('backgroundPanel');
-        
-        const poemModal = document.getElementById('poemModal');
-        const poemEditorText = document.getElementById('poemEditorText');
-        const modalSaveBtn = document.getElementById('modalSaveBtn');
-        const modalCancelBtn = document.getElementById('modalCancelBtn');
-        
-        let currentOpenTab = 'typography';
-        
-        function getLinesFromText(text, ctx, maxWidth, fontSize, fontFamily) {
-            const paragraphs = text.split(/\r?\n/);
-            const lines = [];
-            for (let para of paragraphs) {
-                if (para.trim() === "") {
-                    lines.push("");
-                    continue;
-                }
-                const words = para.split(/\s+/);
-                let currentLine = "";
-                for (let w of words) {
-                    let testLine = currentLine ? currentLine + " " + w : w;
-                    let metrics = ctx.measureText(testLine);
-                    if (metrics.width > maxWidth && currentLine !== "") {
-                        lines.push(currentLine);
-                        currentLine = w;
-                    } else {
-                        currentLine = testLine;
-                    }
-                }
-                if (currentLine) lines.push(currentLine);
+    // ==================== LAYER SYSTEM WITH UNLIMITED FREE DRAG ====================
+    let layers = [];
+    let activeLayerId = null;
+    let nextId = 1;
+    let currentBgMode = 'solid';
+    let loadedImage = null;
+    
+    // Drag state - NO LIMITS on movement
+    let isDraggingLayer = false;
+    let dragStartMouseCanvasX = 0;
+    let dragStartMouseCanvasY = 0;
+    let dragStartLayerXOffset = 0;
+    let dragStartLayerYOffset = 0;
+    let currentlyDraggedLayerId = null;
+    
+    const canvas = document.getElementById('poemCanvas');
+    let ctx = canvas.getContext('2d');
+    const textColorPicker = document.getElementById('textColorPicker');
+    const fontSizeSlider = document.getElementById('fontSizeSlider');
+    const sizeDisplay = document.getElementById('sizeDisplay');
+    const fontSelect = document.getElementById('fontSelect');
+    const alignSelect = document.getElementById('alignSelect');
+    const indentSlider = document.getElementById('indentSlider');
+    const indentDisplay = document.getElementById('indentDisplay');
+    const xOffsetSlider = document.getElementById('xOffsetSlider');
+    const xOffsetDisplay = document.getElementById('xOffsetDisplay');
+    const yOffsetSlider = document.getElementById('yOffsetSlider');
+    const yOffsetDisplay = document.getElementById('yOffsetDisplay');
+    const resetPosBtn = document.getElementById('resetPositionBtn');
+    const solidBgColor = document.getElementById('solidBgColor');
+    const gradA = document.getElementById('gradA');
+    const gradB = document.getElementById('gradB');
+    const gradDirSelect = document.getElementById('gradDirSelect');
+    
+    function showToast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.style.opacity = '1'; setTimeout(() => t.style.opacity = '0', 2000); }
+    
+    function getLinesWithIndent(text, ctx, maxWidth, fontSize, fontFamily, indentPx) {
+        const paragraphs = text.split(/\r?\n/); const lines = [];
+        for (let para of paragraphs) {
+            if (para.trim() === "") { lines.push(""); continue; }
+            const words = para.split(/\s+/); let currentLine = "";
+            for (let w of words) {
+                let testLine = currentLine ? currentLine + " " + w : w;
+                let metrics = ctx.measureText(testLine);
+                if (metrics.width > maxWidth - indentPx && currentLine !== "") { lines.push(currentLine); currentLine = w; }
+                else { currentLine = testLine; }
             }
-            return lines;
+            if (currentLine) lines.push(currentLine);
         }
+        return lines;
+    }
+    
+    function renderCanvas() {
+        const width = 500;
+        let minX = 0, maxX = width, minY = 0, maxY = 400;
         
-        function computeHeight(lines, fontSize) {
-            const lineHeight = fontSize * 1.55;
-            const total = lines.length * lineHeight;
-            const padding = 80;
-            return Math.max(400, Math.ceil(total + padding));
-        }
-        
-        function drawBackground(width, height) {
-            if (currentBgMode === 'solid') {
-                ctx.fillStyle = solidBgColor.value;
-                ctx.fillRect(0, 0, width, height);
-            } else if (currentBgMode === 'gradient') {
-                let grad;
-                const dir = gradDirSelect.value;
-                if (dir === 'to right') grad = ctx.createLinearGradient(0, 0, width, 0);
-                else if (dir === 'to bottom') grad = ctx.createLinearGradient(0, 0, 0, height);
-                else grad = ctx.createLinearGradient(0, 0, width, height);
-                grad.addColorStop(0, gradA.value);
-                grad.addColorStop(1, gradB.value);
-                ctx.fillStyle = grad;
-                ctx.fillRect(0, 0, width, height);
-            } else if (currentBgMode === 'image') {
-                if (loadedImage && loadedImage.complete && loadedImage.naturalWidth > 0) {
-                    ctx.drawImage(loadedImage, 0, 0, width, height);
-                } else {
-                    ctx.fillStyle = "#F1F5F9";
-                    ctx.fillRect(0, 0, width, height);
-                    ctx.fillStyle = "#94A3B8";
-                    ctx.font = "12px system-ui";
-                    ctx.fillText("tap to add image", width/2-55, height/2);
-                }
-            }
-        }
-        
-        function drawPoem(width, height, lines, fontSize, fontFamily, color, align) {
-            if (!lines.length) return;
-            ctx.save();
-            ctx.font = `${fontSize}px ${fontFamily}`;
-            ctx.fillStyle = color;
-            ctx.textAlign = align;
-            const lineHeight = fontSize * 1.55;
+        for (let layer of layers) {
+            const tempCtx = canvas.getContext('2d');
+            tempCtx.font = `${layer.fontSize}px ${layer.fontFamily}`;
+            const lines = getLinesWithIndent(layer.text, tempCtx, width - 70, layer.fontSize, layer.fontFamily, layer.indent);
+            const lineHeight = layer.fontSize * 1.55;
             const totalTextH = lines.length * lineHeight;
-            let startY = (height - totalTextH) / 2;
-            if (startY < 40) startY = 45;
-            for (let i=0; i<lines.length; i++) {
-                const line = lines[i];
-                if (line === "") continue;
-                let x;
-                if (align === 'center') x = width/2;
-                else if (align === 'left') x = 45;
-                else x = width - 45;
-                ctx.fillText(line, x, startY + i * lineHeight);
+            
+            let baseX;
+            if (layer.align === 'center') baseX = width/2 + (layer.xOffset || 0);
+            else if (layer.align === 'left') baseX = 45 + layer.indent + (layer.xOffset || 0);
+            else baseX = width - 45 - layer.indent + (layer.xOffset || 0);
+            
+            let maxLineWidth = 0;
+            for (let line of lines) {
+                const metrics = tempCtx.measureText(line);
+                maxLineWidth = Math.max(maxLineWidth, metrics.width);
             }
-            ctx.restore();
+            
+            const layerLeft = baseX - maxLineWidth/2;
+            const layerRight = baseX + maxLineWidth/2;
+            
+            let baseY = (canvas.height - totalTextH) / 2;
+            if (baseY < 40) baseY = 45;
+            baseY += (layer.yOffset || 0);
+            
+            minX = Math.min(minX, layerLeft - 50);
+            maxX = Math.max(maxX, layerRight + 50);
+            minY = Math.min(minY, baseY - 50);
+            maxY = Math.max(maxY, baseY + totalTextH + 50);
         }
         
-        function renderCanvas() {
-            if (!ctx) return;
-            if (!currentPoem.trim()) {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                return;
-            }
-            const fontSize = parseInt(fontSizeSlider.value, 10);
-            const fontFamily = fontSelect.value;
+        const finalWidth = Math.max(500, Math.min(1200, maxX - minX + 200));
+        const finalHeight = Math.max(500, maxY - minY + 150);
+        
+        if (canvas.width !== finalWidth || canvas.height !== finalHeight) {
+            canvas.width = finalWidth;
+            canvas.height = finalHeight;
+            ctx = canvas.getContext('2d');
+        }
+        
+        // Draw background
+        if (currentBgMode === 'solid') {
+            ctx.fillStyle = solidBgColor.value;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        } else if (currentBgMode === 'gradient') {
+            let grad; const dir = gradDirSelect.value;
+            if (dir === 'to right') grad = ctx.createLinearGradient(0, 0, canvas.width, 0);
+            else if (dir === 'to bottom') grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            else grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            grad.addColorStop(0, gradA.value); grad.addColorStop(1, gradB.value);
+            ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height);
+        } else if (currentBgMode === 'image' && loadedImage) {
+            ctx.drawImage(loadedImage, 0, 0, canvas.width, canvas.height);
+        } else if (currentBgMode === 'image') {
+            ctx.fillStyle = "#F1F5F9"; ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+        
+        // Draw all layers
+        for (let layer of layers) {
             ctx.save();
-            ctx.font = `${fontSize}px ${fontFamily}`;
-            const maxLineWidth = 440;
-            const linesTemp = getLinesFromText(currentPoem, ctx, maxLineWidth, fontSize, fontFamily);
+            ctx.font = `${layer.fontSize}px ${layer.fontFamily}`;
+            ctx.fillStyle = layer.color;
+            ctx.textAlign = layer.align;
+            const maxWidth = canvas.width - 70;
+            const lines = getLinesWithIndent(layer.text, ctx, maxWidth, layer.fontSize, layer.fontFamily, layer.indent);
+            const lineHeight = layer.fontSize * 1.55;
+            const totalTextH = lines.length * lineHeight;
+            
+            let baseY = (canvas.height - totalTextH) / 2;
+            if (baseY < 40) baseY = 45;
+            baseY += (layer.yOffset || 0);
+            const xOffset = layer.xOffset || 0;
+            
+            for (let i = 0; i < lines.length; i++) {
+                if (lines[i] === "") continue;
+                let x;
+                if (layer.align === 'center') x = canvas.width/2 + xOffset;
+                else if (layer.align === 'left') x = 45 + layer.indent + xOffset;
+                else x = canvas.width - 45 - layer.indent + xOffset;
+                ctx.fillText(lines[i], x, baseY + i * lineHeight);
+            }
             ctx.restore();
-            const newHeight = computeHeight(linesTemp, fontSize);
-            const fixedWidth = 500;
-            if (canvas.width !== fixedWidth || canvas.height !== newHeight) {
-                canvas.width = fixedWidth;
-                canvas.height = newHeight;
-                ctx = canvas.getContext('2d');
-            }
-            drawBackground(canvas.width, canvas.height);
-            ctx.font = `${fontSize}px ${fontFamily}`;
-            const finalLines = getLinesFromText(currentPoem, ctx, canvas.width - 90, fontSize, fontFamily);
-            drawPoem(canvas.width, canvas.height, finalLines, fontSize, fontFamily, textColorPicker.value, alignSelect.value);
         }
-        
-        function loadImage(file) {
-            if (!file || !file.type.startsWith('image/')) {
-                imgUploadStatus.innerText = "⚠️ select an image";
-                return;
-            }
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const img = new Image();
-                img.onload = () => {
-                    loadedImage = img;
-                    imgUploadStatus.innerText = `✓ ${file.name.substring(0, 22)}`;
-                    if (currentBgMode === 'image') renderCanvas();
-                };
-                img.onerror = () => { imgUploadStatus.innerText = "Failed"; loadedImage = null; };
-                img.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
+    }
+    
+    function updateActiveLayerUI() {
+        if (!activeLayerId) return;
+        const layer = layers.find(l => l.id === activeLayerId);
+        if (layer) {
+            document.getElementById('activeLayerName').innerHTML = layer.name;
+            textColorPicker.value = layer.color;
+            fontSizeSlider.value = layer.fontSize; sizeDisplay.innerText = layer.fontSize;
+            fontSelect.value = layer.fontFamily;
+            alignSelect.value = layer.align;
+            indentSlider.value = layer.indent; indentDisplay.innerText = layer.indent + 'px';
+            xOffsetSlider.value = layer.xOffset || 0; xOffsetDisplay.innerText = (layer.xOffset || 0) + 'px';
+            yOffsetSlider.value = layer.yOffset || 0; yOffsetDisplay.innerText = (layer.yOffset || 0) + 'px';
         }
-        
-        function clearImageBg() {
-            loadedImage = null;
-            imgUploadStatus.innerText = "Image removed";
-            imageFileInput.value = "";
-            if (currentBgMode === 'image') renderCanvas();
-        }
-        
-        function setBackgroundMode(mode) {
-            currentBgMode = mode;
-            solidBgArea.style.display = mode === 'solid' ? 'block' : 'none';
-            gradientBgArea.style.display = mode === 'gradient' ? 'block' : 'none';
-            imageBgArea.style.display = mode === 'image' ? 'block' : 'none';
-            
-            [solidModeBtn, gradientModeBtn, imageModeBtn].forEach(btn => btn.style.background = "#EFF3F8");
-            if (mode === 'solid') solidModeBtn.style.background = "#CBD5E1";
-            if (mode === 'gradient') gradientModeBtn.style.background = "#CBD5E1";
-            if (mode === 'image') imageModeBtn.style.background = "#CBD5E1";
+        refreshLayersList();
+        renderCanvas();
+    }
+    
+    function updateActiveLayerStyle() {
+        if (!activeLayerId) return;
+        const layer = layers.find(l => l.id === activeLayerId);
+        if (layer) {
+            layer.color = textColorPicker.value;
+            layer.fontSize = parseInt(fontSizeSlider.value);
+            layer.fontFamily = fontSelect.value;
+            layer.align = alignSelect.value;
+            layer.indent = parseInt(indentSlider.value);
             renderCanvas();
+            saveToLocalStorage();
+            refreshLayersList();
         }
-        
-        function setActiveTab(tabId) {
-            if (tabId === 'typography') {
-                if (currentOpenTab === 'typography' && typographyPanel.classList.contains('open')) {
-                    typographyPanel.classList.remove('open');
-                    currentOpenTab = null;
-                    tabTypography.classList.remove('active');
-                } else {
-                    typographyPanel.classList.add('open');
-                    backgroundPanel.classList.remove('open');
-                    tabTypography.classList.add('active');
-                    tabBackground.classList.remove('active');
-                    currentOpenTab = 'typography';
-                }
-            } else if (tabId === 'background') {
-                if (currentOpenTab === 'background' && backgroundPanel.classList.contains('open')) {
-                    backgroundPanel.classList.remove('open');
-                    currentOpenTab = null;
-                    tabBackground.classList.remove('active');
-                } else {
-                    backgroundPanel.classList.add('open');
-                    typographyPanel.classList.remove('open');
-                    tabBackground.classList.add('active');
-                    tabTypography.classList.remove('active');
-                    currentOpenTab = 'background';
-                }
-            }
-        }
-        
-        function openPoemModal() {
-            poemEditorText.value = currentPoem;
-            poemModal.style.display = 'flex';
-        }
-        
-        function closeModal() {
-            poemModal.style.display = 'none';
-        }
-        
-        function savePoemFromModal() {
-            const newText = poemEditorText.value;
-            if (newText !== undefined) {
-                currentPoem = newText;
-                renderCanvas();
-            }
-            closeModal();
-        }
-        
-        function initGradientPresets() {
-            document.querySelectorAll('.grad-chip').forEach(chip => {
-                chip.addEventListener('click', () => {
-                    const g1 = chip.getAttribute('data-g1');
-                    const g2 = chip.getAttribute('data-g2');
-                    if (g1 && g2) {
-                        gradA.value = g1;
-                        gradB.value = g2;
-                        if (currentBgMode === 'gradient') renderCanvas();
-                        else setBackgroundMode('gradient');
-                    }
-                });
-            });
-        }
-        
-        function bindEvents() {
-            textColorPicker.addEventListener('input', () => renderCanvas());
-            fontSizeSlider.addEventListener('input', () => {
-                sizeDisplay.innerText = fontSizeSlider.value;
-                renderCanvas();
-            });
-            fontSelect.addEventListener('change', () => renderCanvas());
-            alignSelect.addEventListener('change', () => renderCanvas());
-            solidBgColor.addEventListener('input', () => { if (currentBgMode === 'solid') renderCanvas(); });
-            gradA.addEventListener('input', () => { if (currentBgMode === 'gradient') renderCanvas(); });
-            gradB.addEventListener('input', () => { if (currentBgMode === 'gradient') renderCanvas(); });
-            gradDirSelect.addEventListener('change', () => { if (currentBgMode === 'gradient') renderCanvas(); });
-            
-            solidModeBtn.addEventListener('click', () => setBackgroundMode('solid'));
-            gradientModeBtn.addEventListener('click', () => setBackgroundMode('gradient'));
-            imageModeBtn.addEventListener('click', () => setBackgroundMode('image'));
-            
-            imageUploadTrigger.addEventListener('click', () => imageFileInput.click());
-            imageFileInput.addEventListener('change', (e) => { if (e.target.files[0]) loadImage(e.target.files[0]); });
-            clearImageBgBtn.addEventListener('click', clearImageBg);
-            
-            canvas.addEventListener('click', openPoemModal);
-            modalSaveBtn.addEventListener('click', savePoemFromModal);
-            modalCancelBtn.addEventListener('click', closeModal);
-            poemModal.addEventListener('click', (e) => { if (e.target === poemModal) closeModal(); });
-            
-            document.getElementById('topSaveBtn').addEventListener('click', () => {
-                try {
-                    const dataURL = canvas.toDataURL('image/png');
-                    const link = document.createElement('a');
-                    link.download = 'rence-verse.png';
-                    link.href = dataURL;
-                    link.click();
-                } catch(e) { 
-                    alert("Save failed: " + e.message); 
-                }
-            });
-            
-            tabTypography.addEventListener('click', () => setActiveTab('typography'));
-            tabBackground.addEventListener('click', () => setActiveTab('background'));
-        }
-        
-        // PWA Installation
-        let deferredPrompt;
-        const installBanner = document.getElementById('installBanner');
-        const installBtn = document.getElementById('installAppBtn');
-        const closeBannerBtn = document.getElementById('closeBannerBtn');
-        
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            installBanner.style.display = 'flex';
+    }
+    
+    function updateXOffset(value) { if(activeLayerId){ const layer = layers.find(l=>l.id===activeLayerId); if(layer){ layer.xOffset = parseInt(value); xOffsetDisplay.innerText = value+'px'; renderCanvas(); saveToLocalStorage(); } } }
+    function updateYOffset(value) { if(activeLayerId){ const layer = layers.find(l=>l.id===activeLayerId); if(layer){ layer.yOffset = parseInt(value); yOffsetDisplay.innerText = value+'px'; renderCanvas(); saveToLocalStorage(); } } }
+    function resetLayerPosition() { if(activeLayerId){ const layer = layers.find(l=>l.id===activeLayerId); if(layer){ layer.xOffset = 0; layer.yOffset = 0; xOffsetSlider.value = 0; xOffsetDisplay.innerText='0px'; yOffsetSlider.value=0; yOffsetDisplay.innerText='0px'; renderCanvas(); saveToLocalStorage(); showToast("Position reset"); } } }
+    
+    function setActiveLayer(id) { activeLayerId = id; updateActiveLayerUI(); saveToLocalStorage(); refreshLayersList(); showToast(`Active: ${layers.find(l=>l.id===id)?.name}`); }
+    
+    function deleteLayer(id) { 
+        if (layers.length === 1) { showToast("Cannot delete last layer"); return; } 
+        const idx = layers.findIndex(l => l.id === id); 
+        if(idx !== -1){ 
+            layers.splice(idx,1); 
+            if(activeLayerId === id) activeLayerId = layers[0]?.id || null; 
+            if(activeLayerId) updateActiveLayerUI(); 
+            renderCanvas(); saveToLocalStorage(); refreshLayersList(); showToast("Layer deleted"); 
+        } 
+    }
+    
+    function addNewLayer() { 
+        const newId = nextId++; 
+        const newLayer = { id: newId, name: `Layer ${layers.length + 1}`, text: "New poetic line\nFlowing freely.", color: "#F59E0B", fontSize: 22, fontFamily: "'Georgia', serif", align: "center", indent: 0, xOffset: 0, yOffset: 20 }; 
+        layers.push(newLayer); setActiveLayer(newId); renderCanvas(); saveToLocalStorage(); showToast(`Added ${newLayer.name}`); refreshLayersList(); 
+    }
+    
+    function refreshLayersList() {
+        const container = document.getElementById('layersListContainer'); if(!container) return;
+        container.innerHTML = '';
+        layers.forEach(layer => {
+            const div = document.createElement('div'); div.className = 'layer-item';
+            div.innerHTML = `<div class="layer-info"><span class="layer-name" data-id="${layer.id}">${escapeHtml(layer.name)}</span><span style="font-size:0.7rem; color:#64748B;">${layer.text.substring(0,22)}${layer.text.length>22?'…':''}</span></div>
+            <div class="layer-controls"><button class="delete-layer-btn" data-id="${layer.id}">🗑️</button></div>`;
+            container.appendChild(div);
         });
+        document.querySelectorAll('.layer-name').forEach(span => { span.addEventListener('click', (e) => { setActiveLayer(parseInt(span.dataset.id)); }); });
+        document.querySelectorAll('.delete-layer-btn').forEach(btn => { btn.addEventListener('click', (e) => { deleteLayer(parseInt(btn.dataset.id)); }); });
+    }
+    
+    function editActiveLayerText() { if(!activeLayerId) return; const layer = layers.find(l=>l.id===activeLayerId); if(layer){ document.getElementById('modalLayerName').innerText = layer.name; document.getElementById('poemEditorText').value = layer.text; document.getElementById('poemModal').style.display = 'flex'; } }
+    function saveLayerTextFromModal() { if(activeLayerId){ const layer = layers.find(l=>l.id===activeLayerId); if(layer){ layer.text = document.getElementById('poemEditorText').value; renderCanvas(); saveToLocalStorage(); refreshLayersList(); showToast(`Updated ${layer.name}`); } } document.getElementById('poemModal').style.display = 'none'; }
+    function escapeHtml(str) { return str.replace(/[&<>]/g, function(m){ return m==='&'?'&amp;': m==='<'?'&lt;':'&gt;';}); }
+    
+    // Drag handlers
+    function handleDragStart(e) {
+        if (!activeLayerId) { showToast("Select a layer first (click on layer name)"); return; }
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width, scaleY = canvas.height / rect.height;
+        let clientX = e.touches ? e.touches[0].clientX : e.clientX, clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        let canvasX = (clientX - rect.left) * scaleX, canvasY = (clientY - rect.top) * scaleY;
+        isDraggingLayer = true;
+        currentlyDraggedLayerId = activeLayerId;
+        const layer = layers.find(l => l.id === currentlyDraggedLayerId);
+        if (layer) { dragStartLayerXOffset = layer.xOffset || 0; dragStartLayerYOffset = layer.yOffset || 0; dragStartMouseCanvasX = canvasX; dragStartMouseCanvasY = canvasY; }
+        canvas.style.cursor = 'grabbing';
+        e.preventDefault();
+    }
+    function handleDragMove(e) {
+        if (!isDraggingLayer || !currentlyDraggedLayerId) return;
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width, scaleY = canvas.height / rect.height;
+        let clientX = e.touches ? e.touches[0].clientX : e.clientX, clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        let currentCanvasX = (clientX - rect.left) * scaleX, currentCanvasY = (clientY - rect.top) * scaleY;
+        let deltaX = currentCanvasX - dragStartMouseCanvasX, deltaY = currentCanvasY - dragStartMouseCanvasY;
+        let newXOffset = dragStartLayerXOffset + deltaX, newYOffset = dragStartLayerYOffset + deltaY;
+        const layer = layers.find(l => l.id === currentlyDraggedLayerId);
+        if (layer) { layer.xOffset = Math.round(newXOffset); layer.yOffset = Math.round(newYOffset); xOffsetSlider.value = layer.xOffset; xOffsetDisplay.innerText = layer.xOffset + 'px'; yOffsetSlider.value = layer.yOffset; yOffsetDisplay.innerText = layer.yOffset + 'px'; renderCanvas(); saveToLocalStorage(); }
+        e.preventDefault();
+    }
+    function handleDragEnd(e) { if (isDraggingLayer) { isDraggingLayer = false; currentlyDraggedLayerId = null; canvas.style.cursor = 'grab'; saveToLocalStorage(); } e.preventDefault(); }
+    
+    canvas.addEventListener('mousedown', (e) => { e.stopPropagation(); handleDragStart(e); });
+    canvas.addEventListener('mousemove', (e) => { if(isDraggingLayer) handleDragMove(e); });
+    canvas.addEventListener('mouseup', handleDragEnd);
+    canvas.addEventListener('touchstart', (e) => { e.preventDefault(); handleDragStart(e); });
+    canvas.addEventListener('touchmove', (e) => { e.preventDefault(); if(isDraggingLayer) handleDragMove(e); });
+    canvas.addEventListener('touchend', handleDragEnd);
+    canvas.addEventListener('click', (e) => { if (!isDraggingLayer) editActiveLayerText(); });
+    
+    function setBackgroundMode(mode) { 
+        currentBgMode = mode; 
+        document.getElementById('solidBgArea').style.display = mode==='solid'?'block':'none'; 
+        document.getElementById('gradientBgArea').style.display = mode==='gradient'?'block':'none'; 
+        document.getElementById('imageBgArea').style.display = mode==='image'?'block':'none'; 
+        const btns = {solid:document.getElementById('solidModeBtn'), gradient:document.getElementById('gradientModeBtn'), image:document.getElementById('imageModeBtn')}; 
+        Object.keys(btns).forEach(k=>btns[k].classList.remove('active')); 
+        btns[mode].classList.add('active'); 
+        renderCanvas(); saveToLocalStorage(); 
+    }
+    
+    function savePoemImage() { try{ renderCanvas(); const link = document.createElement('a'); link.download = `rence_verse_${Date.now()}.png`; link.href = canvas.toDataURL('image/png'); link.click(); showToast("✅ Saved!"); } catch(e){ showToast("❌ Save failed"); } }
+    function saveToLocalStorage() { const saveData = { layers, currentBgMode, solidBg: solidBgColor.value, gradA: gradA.value, gradB: gradB.value, gradDir: gradDirSelect.value, activeLayerId }; localStorage.setItem('rence_verse_full', JSON.stringify(saveData)); }
+    
+    function loadFromStorage() {
+        const saved = localStorage.getItem('rence_verse_full');
+        if (saved) { try { const data = JSON.parse(saved); if (data.layers && data.layers.length) { layers = data.layers; nextId = Math.max(...layers.map(l=>l.id),0)+1; activeLayerId = data.activeLayerId || layers[0]?.id; if(data.currentBgMode) setBackgroundMode(data.currentBgMode); solidBgColor.value = data.solidBg || "#FAF7F2"; gradA.value = data.gradA || "#FDFBF7"; gradB.value = data.gradB || "#E9ECEF"; gradDirSelect.value = data.gradDir || "to right"; } else throw new Error(); } catch(e){ initDefaultLayers(); } } else { initDefaultLayers(); }
+        refreshLayersList(); if(activeLayerId) updateActiveLayerUI(); renderCanvas();
+    }
+    function initDefaultLayers() { layers = [{ id:1, name:"Main Poem", text:"The golden hour melts away,\nShadows dance in soft decay.\nWhispers of the coming night,\nHold the stars in gentle light.", color:"#1E293B", fontSize:26, fontFamily:"'Georgia', serif", align:"center", indent:0, xOffset:0, yOffset:0 }]; nextId=2; activeLayerId=1; }
+    function loadImageFile(file) { const reader = new FileReader(); reader.onload = (e) => { const img = new Image(); img.onload = () => { loadedImage = img; document.getElementById('imgUploadStatus').innerHTML = '✓ Image loaded'; if(currentBgMode === 'image') renderCanvas(); saveToLocalStorage(); }; img.src = e.target.result; }; reader.readAsDataURL(file); }
+    
+    // Tab toggle logic - each tab toggles independently (click to expand, click again to collapse)
+    const tabTypography = document.getElementById('tabTypography');
+    const tabLayers = document.getElementById('tabLayers');
+    const tabBackground = document.getElementById('tabBackground');
+    const typographyPanel = document.getElementById('typographyPanel');
+    const layersPanel = document.getElementById('layersPanel');
+    const backgroundPanel = document.getElementById('backgroundPanel');
+    
+    function togglePanel(panel, tabBtn, panelName) {
+        const isOpen = panel.classList.contains('open');
         
-        installBtn.addEventListener('click', async () => {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                if (outcome === 'accepted') {
-                    installBanner.style.display = 'none';
-                }
-                deferredPrompt = null;
-            }
-        });
+        // Close all panels first (optional: we can allow multiple open, but typical accordion)
+        // For better UX, we'll close others and toggle the clicked one
+        typographyPanel.classList.remove('open');
+        layersPanel.classList.remove('open');
+        backgroundPanel.classList.remove('open');
+        tabTypography.classList.remove('active');
+        tabLayers.classList.remove('active');
+        tabBackground.classList.remove('active');
         
-        closeBannerBtn.addEventListener('click', () => {
-            installBanner.style.display = 'none';
-        });
-        
-        function init() {
-            bindEvents();
-            initGradientPresets();
-            setBackgroundMode('solid');
-            solidBgColor.value = "#FAF7F2";
-            typographyPanel.classList.add('open');
-            backgroundPanel.classList.remove('open');
-            currentOpenTab = 'typography';
-            renderCanvas();
+        if (!isOpen) {
+            panel.classList.add('open');
+            tabBtn.classList.add('active');
         }
-        
-        init();
-    })();
+        // If it was open, we close it (so nothing stays open)
+    }
+    
+    tabTypography.addEventListener('click', () => togglePanel(typographyPanel, tabTypography, 'typography'));
+    tabLayers.addEventListener('click', () => togglePanel(layersPanel, tabLayers, 'layers'));
+    tabBackground.addEventListener('click', () => togglePanel(backgroundPanel, tabBackground, 'background'));
+    
+    // Also refresh layers list when layers panel opens
+    const observer = new MutationObserver((mutations) => {
+        if (layersPanel.classList.contains('open')) {
+            refreshLayersList();
+        }
+    });
+    observer.observe(layersPanel, { attributes: true, attributeFilter: ['class'] });
+    
+    document.getElementById('topSaveBtn').addEventListener('click', savePoemImage);
+    document.getElementById('addNewLayerBtn').addEventListener('click', addNewLayer);
+    document.getElementById('modalSaveBtn').addEventListener('click', saveLayerTextFromModal);
+    document.getElementById('modalCancelBtn').addEventListener('click', () => document.getElementById('poemModal').style.display = 'none');
+    document.getElementById('poemModal').addEventListener('click', (e) => { if(e.target === document.getElementById('poemModal')) document.getElementById('poemModal').style.display = 'none'; });
+    textColorPicker.addEventListener('input', updateActiveLayerStyle);
+    fontSizeSlider.addEventListener('input', () => { sizeDisplay.innerText = fontSizeSlider.value; updateActiveLayerStyle(); });
+    fontSelect.addEventListener('change', updateActiveLayerStyle);
+    alignSelect.addEventListener('change', updateActiveLayerStyle);
+    indentSlider.addEventListener('input', () => { indentDisplay.innerText = indentSlider.value + 'px'; updateActiveLayerStyle(); });
+    xOffsetSlider.addEventListener('input', (e) => updateXOffset(e.target.value));
+    yOffsetSlider.addEventListener('input', (e) => updateYOffset(e.target.value));
+    resetPosBtn.addEventListener('click', resetLayerPosition);
+    solidBgColor.addEventListener('input', () => { if(currentBgMode === 'solid') renderCanvas(); saveToLocalStorage(); });
+    gradA.addEventListener('input', () => { if(currentBgMode === 'gradient') renderCanvas(); saveToLocalStorage(); });
+    gradB.addEventListener('input', () => { if(currentBgMode === 'gradient') renderCanvas(); saveToLocalStorage(); });
+    gradDirSelect.addEventListener('change', () => { if(currentBgMode === 'gradient') renderCanvas(); saveToLocalStorage(); });
+    document.getElementById('solidModeBtn').addEventListener('click', () => setBackgroundMode('solid'));
+    document.getElementById('gradientModeBtn').addEventListener('click', () => setBackgroundMode('gradient'));
+    document.getElementById('imageModeBtn').addEventListener('click', () => setBackgroundMode('image'));
+    document.getElementById('imageUploadTrigger').addEventListener('click', () => document.getElementById('imageFileInput').click());
+    document.getElementById('imageFileInput').addEventListener('change', (e) => { if(e.target.files[0]) loadImageFile(e.target.files[0]); });
+    document.getElementById('clearImageBgBtn').addEventListener('click', () => { loadedImage = null; document.getElementById('imgUploadStatus').innerHTML = ''; if(currentBgMode === 'image') renderCanvas(); saveToLocalStorage(); });
+    
+    loadFromStorage();
+    window.addEventListener('beforeunload', () => saveToLocalStorage());
+    canvas.style.cursor = 'grab';
 </script>
 </body>
 </html>
