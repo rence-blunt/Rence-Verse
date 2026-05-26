@@ -11,10 +11,10 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#1E293B">
     
-        <!-- PWA Manifest -->
+    <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json">
     
-    <!-- Service Worker Registration -->
+    <!-- Service Worker Registration (optional, but present) -->
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
@@ -27,14 +27,13 @@
     
     <!-- iOS/macOS specific -->
     <meta name="apple-mobile-web-app-title" content="Rence Verse">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="images/renceverse_logo.png">
     
     <!-- Windows -->
     <meta name="msapplication-TileImage" content="images/renceverse_logo.png">
     <meta name="msapplication-TileColor" content="#1E293B">
 
-    <!-- Favicon & Logo pointing to images folder -->
+    <!-- Favicon & Logo -->
     <link rel="icon" type="image/png" href="images/renceverse_logo.png">
     <link rel="apple-touch-icon" href="images/renceverse_logo.png">
     
@@ -83,17 +82,19 @@
         .save-btn-top {
             background: #1E293B;
             border: none;
-            border-radius: 40px;
-            padding: 8px 18px;
+            border-radius: 32px;
+            padding: 6px 14px;
             color: white;
-            font-weight: 600;
-            font-size: 0.8rem;
+            font-weight: 500;
+            font-size: 0.7rem;
             cursor: pointer;
             transition: all 0.2s ease;
+            min-width: 70px;
+            letter-spacing: 0.3px;
         }
         
         .save-btn-top:active {
-            transform: scale(0.96);
+            transform: scale(0.95);
         }
 
         .canvas-container {
@@ -113,6 +114,7 @@
             border-radius: 20px;
             box-shadow: 0 6px 14px rgba(0,0,0,0.05);
             cursor: grab;
+            touch-action: none;  /* critical for touch drag without page scroll */
         }
         
         #poemCanvas:active {
@@ -135,14 +137,16 @@
         .tap-hint {
             text-align: center;
             margin-top: 6px;
-            font-size: 0.65rem;
-            color: #64748B;
+            font-size: 0.7rem;
+            color: #475569;
             background: #F8FAFE;
-            padding: 5px 12px;
+            padding: 6px 14px;
             border-radius: 60px;
             display: inline-block;
             margin-left: auto;
             margin-right: auto;
+            font-weight: 500;
+            letter-spacing: -0.2px;
         }
 
         /* Three Tabs */
@@ -176,7 +180,7 @@
             border-bottom: 2px solid #F59E0B;
         }
 
-        /* Expandable panels - each independent */
+        /* Expandable panels */
         .settings-panel {
             background: white;
             padding: 0 20px;
@@ -468,34 +472,8 @@
             .ctrl-item { padding: 4px 12px; }
             input[type="color"] { width: 34px; height: 34px; }
             .layer-item { flex-direction: column; align-items: stretch; }
+            .tap-hint { font-size: 0.65rem; }
         }
-
-        .save-btn-top {
-    background: #1E293B;
-    border: none;
-    border-radius: 32px;
-    padding: 6px 14px;
-    color: white;
-    font-weight: 500;
-    font-size: 0.7rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    min-width: 70px;
-    letter-spacing: 0.3px;
-}
-
-.save-btn-top:active {
-    transform: scale(0.95);
-}
-
-/* Even smaller on mobile */
-@media (max-width: 480px) {
-    .save-btn-top {
-        padding: 5px 12px;
-        font-size: 0.65rem;
-        min-width: 62px;
-    }
-}
     </style>
 </head>
 <body>
@@ -511,20 +489,20 @@
         <canvas id="poemCanvas" width="500" height="500" style="width:100%; height:auto;"></canvas>
     </div>
     <div style="display: flex; justify-content: center; flex-direction: column; align-items: center; gap: 4px;">
-    <div class="tap-hint">✍️ Tap text to edit content | Drag to move freely</div>
+        <div class="tap-hint">✍️ <strong>Tap text to edit content</strong> | Drag anywhere on layer to move freely</div>
     </div>
 
-    <!-- Three Tabs: Typography | Layers | Background -->
+    <!-- Three Tabs -->
     <div class="bottom-tabs">
-        <button id="tabTypography" class="tab-btn active"> Typography</button>
-        <button id="tabLayers" class="tab-btn"> Layers</button>
-        <button id="tabBackground" class="tab-btn"> Background</button>
+        <button id="tabTypography" class="tab-btn active">✏️ Typography</button>
+        <button id="tabLayers" class="tab-btn">📑 Layers</button>
+        <button id="tabBackground" class="tab-btn">🎨 Background</button>
     </div>
 
     <!-- Typography Panel -->
     <div id="typographyPanel" class="settings-panel open">
         <div class="style-group">
-            <div class="style-label"> Active Layer: <span id="activeLayerName">Main Poem</span></div>
+            <div class="style-label">🎯 Active Layer: <span id="activeLayerName">Main Poem</span></div>
             <div class="controls-row">
                 <div class="ctrl-item"><span>Color</span><input type="color" id="textColorPicker" value="#1E293B"></div>
                 <div class="ctrl-item"><span>Size</span><input type="range" id="fontSizeSlider" min="12" max="72" value="26"><span id="sizeDisplay">26</span></div>
@@ -547,8 +525,8 @@
                 <div class="ctrl-item"><span>Indent</span><input type="range" id="indentSlider" min="0" max="80" value="0"><span id="indentDisplay">0px</span></div>
             </div>
             <div class="controls-row" style="margin-top:12px;">
-                <div class="ctrl-item"><span> X Position</span><input type="range" id="xOffsetSlider" min="-500" max="500" value="0"><span id="xOffsetDisplay">0px</span></div>
-                <div class="ctrl-item"><span>Y Position</span><input type="range" id="yOffsetSlider" min="-500" max="500" value="0"><span id="yOffsetDisplay">0px</span></div>
+                <div class="ctrl-item"><span>📍 X Offset</span><input type="range" id="xOffsetSlider" min="-500" max="500" value="0"><span id="xOffsetDisplay">0px</span></div>
+                <div class="ctrl-item"><span>📍 Y Offset</span><input type="range" id="yOffsetSlider" min="-500" max="500" value="0"><span id="yOffsetDisplay">0px</span></div>
                 <button id="resetPositionBtn" style="background:#E2E8F0; border:none; border-radius:40px; padding:6px 16px; cursor:pointer;">⟳ Reset</button>
             </div>
         </div>
@@ -557,10 +535,10 @@
     <!-- Layers Panel -->
     <div id="layersPanel" class="settings-panel">
         <div class="style-group">
-            <div class="style-label">Text Layers</div>
+            <div class="style-label">📄 Text Layers</div>
             <div id="layersListContainer" class="layer-list"></div>
             <button id="addNewLayerBtn" class="add-layer-btn">+ Add New Text Layer</button>
-            <div style="margin-top: 10px; font-size: 0.65rem; color: #64748B; text-align: center;">Click a layer name to activate, then drag it anywhere</div>
+            <div style="margin-top: 10px; font-size: 0.65rem; color: #64748B; text-align: center;">✨ Tap a layer name to activate, then drag or edit</div>
         </div>
     </div>
 
@@ -599,19 +577,17 @@
 <div id="toast" class="toast"></div>
 
 <script>
-    // ==================== LAYER SYSTEM WITH UNLIMITED FREE DRAG ====================
+    // ========== LAYER SYSTEM ==========
     let layers = [];
     let activeLayerId = null;
     let nextId = 1;
     let currentBgMode = 'solid';
     let loadedImage = null;
     
-    // Drag state - NO LIMITS on movement
+    // Drag state
     let isDraggingLayer = false;
-    let dragStartMouseCanvasX = 0;
-    let dragStartMouseCanvasY = 0;
-    let dragStartLayerXOffset = 0;
-    let dragStartLayerYOffset = 0;
+    let dragStartMouseCanvasX = 0, dragStartMouseCanvasY = 0;
+    let dragStartLayerXOffset = 0, dragStartLayerYOffset = 0;
     let currentlyDraggedLayerId = null;
     
     const canvas = document.getElementById('poemCanvas');
@@ -654,47 +630,35 @@
     function renderCanvas() {
         const width = 500;
         let minX = 0, maxX = width, minY = 0, maxY = 400;
-        
         for (let layer of layers) {
             const tempCtx = canvas.getContext('2d');
             tempCtx.font = `${layer.fontSize}px ${layer.fontFamily}`;
             const lines = getLinesWithIndent(layer.text, tempCtx, width - 70, layer.fontSize, layer.fontFamily, layer.indent);
             const lineHeight = layer.fontSize * 1.55;
             const totalTextH = lines.length * lineHeight;
-            
             let baseX;
             if (layer.align === 'center') baseX = width/2 + (layer.xOffset || 0);
             else if (layer.align === 'left') baseX = 45 + layer.indent + (layer.xOffset || 0);
             else baseX = width - 45 - layer.indent + (layer.xOffset || 0);
-            
             let maxLineWidth = 0;
-            for (let line of lines) {
-                const metrics = tempCtx.measureText(line);
-                maxLineWidth = Math.max(maxLineWidth, metrics.width);
-            }
-            
+            for (let line of lines) { const metrics = tempCtx.measureText(line); maxLineWidth = Math.max(maxLineWidth, metrics.width); }
             const layerLeft = baseX - maxLineWidth/2;
             const layerRight = baseX + maxLineWidth/2;
-            
             let baseY = (canvas.height - totalTextH) / 2;
             if (baseY < 40) baseY = 45;
             baseY += (layer.yOffset || 0);
-            
             minX = Math.min(minX, layerLeft - 50);
             maxX = Math.max(maxX, layerRight + 50);
             minY = Math.min(minY, baseY - 50);
             maxY = Math.max(maxY, baseY + totalTextH + 50);
         }
-        
         const finalWidth = Math.max(500, Math.min(1200, maxX - minX + 200));
         const finalHeight = Math.max(500, maxY - minY + 150);
-        
         if (canvas.width !== finalWidth || canvas.height !== finalHeight) {
             canvas.width = finalWidth;
             canvas.height = finalHeight;
             ctx = canvas.getContext('2d');
         }
-        
         // Draw background
         if (currentBgMode === 'solid') {
             ctx.fillStyle = solidBgColor.value;
@@ -711,7 +675,6 @@
         } else if (currentBgMode === 'image') {
             ctx.fillStyle = "#F1F5F9"; ctx.fillRect(0, 0, canvas.width, canvas.height);
         }
-        
         // Draw all layers
         for (let layer of layers) {
             ctx.save();
@@ -722,12 +685,10 @@
             const lines = getLinesWithIndent(layer.text, ctx, maxWidth, layer.fontSize, layer.fontFamily, layer.indent);
             const lineHeight = layer.fontSize * 1.55;
             const totalTextH = lines.length * lineHeight;
-            
             let baseY = (canvas.height - totalTextH) / 2;
             if (baseY < 40) baseY = 45;
             baseY += (layer.yOffset || 0);
             const xOffset = layer.xOffset || 0;
-            
             for (let i = 0; i < lines.length; i++) {
                 if (lines[i] === "") continue;
                 let x;
@@ -812,40 +773,81 @@
     function saveLayerTextFromModal() { if(activeLayerId){ const layer = layers.find(l=>l.id===activeLayerId); if(layer){ layer.text = document.getElementById('poemEditorText').value; renderCanvas(); saveToLocalStorage(); refreshLayersList(); showToast(`Updated ${layer.name}`); } } document.getElementById('poemModal').style.display = 'none'; }
     function escapeHtml(str) { return str.replace(/[&<>]/g, function(m){ return m==='&'?'&amp;': m==='<'?'&lt;':'&gt;';}); }
     
-    // Drag handlers
-    function handleDragStart(e) {
-        if (!activeLayerId) { showToast("Select a layer first (click on layer name)"); return; }
+    // ---- DRAG LOGIC (optimized for touch + mouse) ----
+    function getCanvasCoords(e) {
         const rect = canvas.getBoundingClientRect();
         const scaleX = canvas.width / rect.width, scaleY = canvas.height / rect.height;
-        let clientX = e.touches ? e.touches[0].clientX : e.clientX, clientY = e.touches ? e.touches[0].clientY : e.clientY;
-        let canvasX = (clientX - rect.left) * scaleX, canvasY = (clientY - rect.top) * scaleY;
+        let clientX, clientY;
+        if (e.touches) {
+            clientX = e.touches[0].clientX;
+            clientY = e.touches[0].clientY;
+        } else {
+            clientX = e.clientX;
+            clientY = e.clientY;
+        }
+        let canvasX = (clientX - rect.left) * scaleX;
+        let canvasY = (clientY - rect.top) * scaleY;
+        canvasX = Math.min(Math.max(canvasX, 0), canvas.width);
+        canvasY = Math.min(Math.max(canvasY, 0), canvas.height);
+        return { canvasX, canvasY };
+    }
+    
+    function onDragStart(e) {
+        if (!activeLayerId) { showToast("Select a layer first (tap layer name)"); return; }
+        const { canvasX, canvasY } = getCanvasCoords(e);
         isDraggingLayer = true;
         currentlyDraggedLayerId = activeLayerId;
         const layer = layers.find(l => l.id === currentlyDraggedLayerId);
-        if (layer) { dragStartLayerXOffset = layer.xOffset || 0; dragStartLayerYOffset = layer.yOffset || 0; dragStartMouseCanvasX = canvasX; dragStartMouseCanvasY = canvasY; }
+        if (layer) {
+            dragStartLayerXOffset = layer.xOffset || 0;
+            dragStartLayerYOffset = layer.yOffset || 0;
+            dragStartMouseCanvasX = canvasX;
+            dragStartMouseCanvasY = canvasY;
+        }
         canvas.style.cursor = 'grabbing';
         e.preventDefault();
     }
-    function handleDragMove(e) {
+    
+    function onDragMove(e) {
         if (!isDraggingLayer || !currentlyDraggedLayerId) return;
-        const rect = canvas.getBoundingClientRect();
-        const scaleX = canvas.width / rect.width, scaleY = canvas.height / rect.height;
-        let clientX = e.touches ? e.touches[0].clientX : e.clientX, clientY = e.touches ? e.touches[0].clientY : e.clientY;
-        let currentCanvasX = (clientX - rect.left) * scaleX, currentCanvasY = (clientY - rect.top) * scaleY;
-        let deltaX = currentCanvasX - dragStartMouseCanvasX, deltaY = currentCanvasY - dragStartMouseCanvasY;
-        let newXOffset = dragStartLayerXOffset + deltaX, newYOffset = dragStartLayerYOffset + deltaY;
+        const { canvasX, canvasY } = getCanvasCoords(e);
+        let deltaX = canvasX - dragStartMouseCanvasX;
+        let deltaY = canvasY - dragStartMouseCanvasY;
+        let newXOffset = dragStartLayerXOffset + deltaX;
+        let newYOffset = dragStartLayerYOffset + deltaY;
         const layer = layers.find(l => l.id === currentlyDraggedLayerId);
-        if (layer) { layer.xOffset = Math.round(newXOffset); layer.yOffset = Math.round(newYOffset); xOffsetSlider.value = layer.xOffset; xOffsetDisplay.innerText = layer.xOffset + 'px'; yOffsetSlider.value = layer.yOffset; yOffsetDisplay.innerText = layer.yOffset + 'px'; renderCanvas(); saveToLocalStorage(); }
+        if (layer) {
+            layer.xOffset = Math.round(newXOffset);
+            layer.yOffset = Math.round(newYOffset);
+            xOffsetSlider.value = layer.xOffset;
+            xOffsetDisplay.innerText = layer.xOffset + 'px';
+            yOffsetSlider.value = layer.yOffset;
+            yOffsetDisplay.innerText = layer.yOffset + 'px';
+            renderCanvas();
+            saveToLocalStorage();
+        }
         e.preventDefault();
     }
-    function handleDragEnd(e) { if (isDraggingLayer) { isDraggingLayer = false; currentlyDraggedLayerId = null; canvas.style.cursor = 'grab'; saveToLocalStorage(); } e.preventDefault(); }
     
-    canvas.addEventListener('mousedown', (e) => { e.stopPropagation(); handleDragStart(e); });
-    canvas.addEventListener('mousemove', (e) => { if(isDraggingLayer) handleDragMove(e); });
-    canvas.addEventListener('mouseup', handleDragEnd);
-    canvas.addEventListener('touchstart', (e) => { e.preventDefault(); handleDragStart(e); });
-    canvas.addEventListener('touchmove', (e) => { e.preventDefault(); if(isDraggingLayer) handleDragMove(e); });
-    canvas.addEventListener('touchend', handleDragEnd);
+    function onDragEnd(e) {
+        if (isDraggingLayer) {
+            isDraggingLayer = false;
+            currentlyDraggedLayerId = null;
+            canvas.style.cursor = 'grab';
+            saveToLocalStorage();
+        }
+        e.preventDefault();
+    }
+    
+    // Canvas event binding (supports both mouse and touch)
+    canvas.addEventListener('mousedown', onDragStart);
+    window.addEventListener('mousemove', (e) => { if(isDraggingLayer) onDragMove(e); });
+    window.addEventListener('mouseup', onDragEnd);
+    canvas.addEventListener('touchstart', onDragStart, { passive: false });
+    canvas.addEventListener('touchmove', onDragMove, { passive: false });
+    canvas.addEventListener('touchend', onDragEnd);
+    canvas.addEventListener('touchcancel', onDragEnd);
+    // Tap to edit: only when not dragging
     canvas.addEventListener('click', (e) => { if (!isDraggingLayer) editActiveLayerText(); });
     
     function setBackgroundMode(mode) { 
@@ -870,7 +872,7 @@
     function initDefaultLayers() { layers = [{ id:1, name:"Main Poem", text:"When love finds you well,\nno man is a burden.\nYou don't feel empty,\nyou don't feel lonely...", color:"#1E293B", fontSize:26, fontFamily:"'Georgia', serif", align:"center", indent:0, xOffset:0, yOffset:0 }]; nextId=2; activeLayerId=1; }
     function loadImageFile(file) { const reader = new FileReader(); reader.onload = (e) => { const img = new Image(); img.onload = () => { loadedImage = img; document.getElementById('imgUploadStatus').innerHTML = '✓ Image loaded'; if(currentBgMode === 'image') renderCanvas(); saveToLocalStorage(); }; img.src = e.target.result; }; reader.readAsDataURL(file); }
     
-    // Tab toggle logic - each tab toggles independently (click to expand, click again to collapse)
+    // Tab toggle logic (single open)
     const tabTypography = document.getElementById('tabTypography');
     const tabLayers = document.getElementById('tabLayers');
     const tabBackground = document.getElementById('tabBackground');
@@ -878,36 +880,24 @@
     const layersPanel = document.getElementById('layersPanel');
     const backgroundPanel = document.getElementById('backgroundPanel');
     
-    function togglePanel(panel, tabBtn, panelName) {
+    function togglePanel(panel, tabBtn) {
         const isOpen = panel.classList.contains('open');
-        
-        // Close all panels first (optional: we can allow multiple open, but typical accordion)
-        // For better UX, we'll close others and toggle the clicked one
         typographyPanel.classList.remove('open');
         layersPanel.classList.remove('open');
         backgroundPanel.classList.remove('open');
         tabTypography.classList.remove('active');
         tabLayers.classList.remove('active');
         tabBackground.classList.remove('active');
-        
         if (!isOpen) {
             panel.classList.add('open');
             tabBtn.classList.add('active');
         }
-        // If it was open, we close it (so nothing stays open)
     }
+    tabTypography.addEventListener('click', () => togglePanel(typographyPanel, tabTypography));
+    tabLayers.addEventListener('click', () => togglePanel(layersPanel, tabLayers));
+    tabBackground.addEventListener('click', () => togglePanel(backgroundPanel, tabBackground));
     
-    tabTypography.addEventListener('click', () => togglePanel(typographyPanel, tabTypography, 'typography'));
-    tabLayers.addEventListener('click', () => togglePanel(layersPanel, tabLayers, 'layers'));
-    tabBackground.addEventListener('click', () => togglePanel(backgroundPanel, tabBackground, 'background'));
-    
-    // Also refresh layers list when layers panel opens
-    const observer = new MutationObserver((mutations) => {
-        if (layersPanel.classList.contains('open')) {
-            refreshLayersList();
-        }
-    });
-    observer.observe(layersPanel, { attributes: true, attributeFilter: ['class'] });
+    new MutationObserver(() => { if(layersPanel.classList.contains('open')) refreshLayersList(); }).observe(layersPanel, { attributes: true, attributeFilter: ['class'] });
     
     document.getElementById('topSaveBtn').addEventListener('click', savePoemImage);
     document.getElementById('addNewLayerBtn').addEventListener('click', addNewLayer);
@@ -934,7 +924,6 @@
     document.getElementById('clearImageBgBtn').addEventListener('click', () => { loadedImage = null; document.getElementById('imgUploadStatus').innerHTML = ''; if(currentBgMode === 'image') renderCanvas(); saveToLocalStorage(); });
     
     loadFromStorage();
-    window.addEventListener('beforeunload', () => saveToLocalStorage());
     canvas.style.cursor = 'grab';
 </script>
 </body>
