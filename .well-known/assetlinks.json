@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "io.github.rence_blunt.twa",
+        "sha256_cert_fingerprints": ["25:63:3D:AE:7A:54:95:79:B3:E4:03:F5:12:CC:25:4E:B7:15:74:EB:C7:B2:75:76:CA:71:40:3A:16:E1:41:56"]
+      }
+    }]
