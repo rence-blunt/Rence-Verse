@@ -68,7 +68,8 @@
         .modal-cancel{background:#334155;border-radius:60px;padding:14px;color:white;cursor:pointer}
         .toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#1E293B;color:white;padding:12px 24px;border-radius:60px;opacity:0;transition:opacity 0.25s;pointer-events:none}
   
-        /* FORCED Fixed header navigation */
+        
+     /* FORCED - Fixed header navigation */
 .app-header {
     padding: 18px 20px 12px 20px !important;
     display: flex !important;
@@ -86,7 +87,7 @@
     box-shadow: 0 2px 10px rgba(0,0,0,0.05) !important;
 }
 
-/* FORCED Fixed bottom navigation */
+/* FORCED - Fixed bottom navigation */
 .bottom-tabs {
     background: white !important;
     border-top: 1px solid #EDF2F7 !important;
@@ -103,7 +104,7 @@
     box-shadow: 0 -2px 10px rgba(0,0,0,0.05) !important;
 }
 
-/* FORCED Add padding to top and bottom of app */
+/* FORCED - Add padding to top and bottom of app */
 .app {
     max-width: 550px !important;
     width: 100% !important;
@@ -117,47 +118,76 @@
     padding-bottom: 70px !important;  /* Space for fixed bottom nav */
 }
 
-/* FORCED Make canvas container scrollable */
+/* FORCED - Canvas container - NO LIMITS WHATSOEVER */
 .canvas-container {
     padding: 24px 20px !important;
     background: #FAFCFE !important;
-    display: flex !important;
-    justify-content: center !important;
+    display: block !important;
     position: relative !important;
-    overflow-x: auto !important;
-    max-height: 50vh !important;
-    overflow-y: auto !important;
+    overflow: visible !important;
+    /* NO max-height - can grow forever */
+    /* NO overflow-y - page scrolls naturally */
+    height: auto !important;
+    min-height: auto !important;
+    max-height: none !important;
 }
 
-/* FORCED Adjust settings panels height */
+/* FORCED - Canvas itself - grows with content */
+#poemCanvas {
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    background: white !important;
+    border-radius: 20px !important;
+    box-shadow: 0 6px 14px rgba(0,0,0,0.05) !important;
+    cursor: grab !important;
+    touch-action: none !important;
+    /* NO height limits */
+    max-height: none !important;
+    min-height: auto !important;
+}
+
+/* FORCED - Settings panels scrollable but NOT limiting canvas */
 .settings-panel.open {
-    max-height: 400px !important;
+    max-height: 350px !important;
     padding: 16px 20px 24px !important;
     border-bottom: 1px solid #EDF2F7 !important;
     overflow-y: auto !important;
+    overflow-x: hidden !important;
 }
 
-/* FORCED Make sure the body background doesn't show through */
+/* FORCED - Body scrolls normally */
 body {
     background: #F1F5F9 !important;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
     min-height: 100vh !important;
     padding: 0 !important;
     margin: 0 !important;
-}
-
-/* EXTRA FORCE: Ensure no other styles override */
-.app-header, .bottom-tabs {
-    transform: translateZ(0) !important;
-    backface-visibility: hidden !important;
-    -webkit-backface-visibility: hidden !important;
-}
-
-/* Ensure the main content area scrolls properly */
-.app > :not(.app-header):not(.bottom-tabs) {
-    flex: 1 !important;
+    overflow-x: hidden !important;
     overflow-y: auto !important;
-    }
+}
+
+/* FORCED - Everything inside app scrolls naturally */
+.app > *:not(.app-header):not(.bottom-tabs) {
+    overflow: visible !important;
+    position: relative !important;
+}
+
+/* FORCED - Remove any hidden overflow that might clip canvas */
+* {
+    overflow-anchor: none !important;
+}
+
+/* FORCED - Extra force to remove any height restrictions on canvas */
+canvas,
+.canvas-container,
+#poemCanvas,
+[class*="canvas"] {
+    max-height: none !important;
+    min-height: 0 !important;
+    height: auto !important;
+    overflow: visible !important;
+}
         </style>
 </head>
 <body>
